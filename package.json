@@ -10,8 +10,9 @@
   ],
   "scripts": {
     "build": "turbo build",
-    "dev": "turbo dev --filter=@reviewskits/admin --filter=@reviewskits/server --filter=docs",
-    "lint": "turbo lint",
+    "dev": "bun scripts/dev.ts",
+    "dev:app": "turbo dev --filter=@reviewskits/admin --filter=@reviewskits/server --filter=docs",
+    "lint": "tsc --project scripts/tsconfig.json && turbo lint",
     "test": "turbo test",
     "test:unit": "bun run build --filter=@reviewskits/core && bun run --cwd apps/server test:unit && bun run --cwd packages/sdk-core test && bun run --cwd packages/sdk-react test && bun run --cwd packages/sdk-vue test",
     "prepare": "husky",

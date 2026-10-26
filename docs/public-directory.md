@@ -91,14 +91,12 @@ For custom server integrations use GET /api/v1/directory/scores/:domain. Generic
 
 ## Development
 
-Use the existing checkout; cloud tasks are already isolated and do not need another Git worktree.
-
-1. Install frozen dependencies with Bun.
-2. Configure the ignored .env from .env.example and start PostgreSQL.
-3. Enable local email with SMTP_HOST=127.0.0.1, SMTP_PORT=1025 and SMTP_FROM=no-reply@reviewskits.local, then start the mailpit service in infra/docker-compose.dev.yml.
-4. Set BASE_URL to the frontend origin and BETTER_AUTH_URL to its auth API origin. Cloud setup uses the local frontend on port 5180 and API on port 3000.
-5. From apps/server, run bun run db:push for a disposable development database.
-6. From the root, run bun run dev. It starts API, directory frontend, docs and worker. Stop only development processes you started.
+From a new checkout, run `bun install --frozen-lockfile`, then `bun run dev`.
+The launcher creates a missing local `.env` with generated credentials, starts
+PostgreSQL and Mailpit, prepares shared types and the local database, and starts
+the API, frontend, docs, and worker. `make dev` is an alias. Existing configuration
+is kept. See [development details](development.md) for custom setups and the
+`dev:app` command for already provisioned environments.
 
 The prepared cloud helper /workspace/.cloud-setup/reviews-kits/install.sh reproduces local installation, PostgreSQL, Mailpit, separate development/test schemas and all workspace builds. The snapshot retains the installed dependencies, not live processes.
 
@@ -124,7 +122,7 @@ Container publishing uses the current GitHub repository owner's registry namespa
 
 ## Production
 
-Use a dedicated production database, a strong auth secret, real SMTP configuration, your public BASE_URL, and appropriate network egress. Do not copy development accounts, database files or Mailpit configuration into production.
+Follow the [production deployment guide](deployment.md) for environment values and launch instructions. Use a dedicated production database, a strong auth secret, real SMTP configuration, your public BASE_URL, and appropriate network egress. Do not copy development accounts, database files or Mailpit configuration into production.
 
 The standard compose file references upstream images, which do not contain this fork's changes. Build this fork using the overlay:
 

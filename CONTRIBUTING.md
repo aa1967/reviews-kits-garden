@@ -14,59 +14,23 @@ Thanks for taking the time to contribute. This guide will get you up and running
 
 ## Setup
 
-**Requirements:**
-- [Bun](https://bun.sh) 1.4.4
-- [Docker](https://docker.com) >= 24.0
-- [Git](https://git-scm.com)
-- [Make](https://www.gnu.org/software/make/) (pre-installed on macOS and Linux)
+Install [Bun 1.4.4](https://bun.sh/) and Docker with Compose v2.
 
 ```bash
-# 1. Clone this repository (or substitute your own fork URL when contributing)
 git clone https://github.com/aa1967/reviews-kits-garden.git
 cd reviews-kits-garden
-
-# 2. Install dependencies
 bun install --frozen-lockfile
-
-# 3. Copy environment variables
-cp .env.example .env
-# Configure the database, auth secret, and local Mailpit settings from README.md.
-
-# 4. Build shared packages and start development
-bun run build
-make dev
-```
-
-Follow the [README local setup](README.md#local-development) for the exact `.env`
-values and first-account/email verification steps.
-
-`make dev` starts PostgreSQL and Mailpit, waits for the database, pushes the schema,
-and starts the app and monitoring worker. Redis and Chainguard MinIO remain
-available through the opt-in cache and storage profiles.
-
-Enable them with make cache / bun run cache:start or make storage /
-bun run storage:start. Stop an extra service with bun run cache:stop or
-bun run storage:stop. These commands retain its data volume.
-
-To stop all infrastructure profiles while retaining data volumes:
-```bash
-make stop
-```
-
-### Windows (without Make)
-
-If you are on Windows and don't have `make`, run these steps manually:
-
-```bash
-# Start infrastructure
-docker compose --env-file .env -f infra/docker-compose.dev.yml up -d --wait
-
-# Prepare the development schema
-bun run --cwd apps/server db:push
-
-# Start the dev server
 bun run dev
 ```
+
+The launcher creates a missing local `.env`, starts PostgreSQL and Mailpit,
+prepares shared types and the database, then starts development. `make dev` is
+an optional alias; Make is not required. Existing `.env` values are kept.
+
+Open `http://localhost:5180`, register the first administrator account, and
+verify its email in Mailpit at `http://localhost:8025`.
+See [development details](docs/development.md) for custom settings, optional
+services, stopping containers, and troubleshooting.
 
 ---
 
