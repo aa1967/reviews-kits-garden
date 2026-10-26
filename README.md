@@ -6,7 +6,33 @@ This is the [aa1967/reviews-kits-garden](https://github.com/aa1967/reviews-kits-
 
 ## Local development
 
-Install [Bun 1.4.4](https://bun.sh/) and Docker with Compose v2, then run:
+You need Docker with Compose v2 running, plus Bun 1.4.4.
+
+Install Bun on **Debian 13 / Ubuntu** using its official installer:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y curl unzip
+curl -fsSL https://bun.sh/install | bash -s -- bun-v1.4.4
+export PATH="$HOME/.bun/bin:$PATH"
+bun --version
+```
+
+The last three commands also work on other Linux distributions and macOS with
+curl and unzip installed. No paid Bun package repository is required.
+
+<details>
+<summary>Windows installation (PowerShell)</summary>
+
+```powershell
+& ([scriptblock]::Create((irm https://bun.sh/install.ps1))) -Version 1.4.4
+```
+
+Open a new terminal after installation.
+
+</details>
+
+Then launch development:
 
 ```bash
 git clone https://github.com/aa1967/reviews-kits-garden.git
@@ -19,7 +45,8 @@ Open **http://localhost:5180**. The first account you register becomes the
 administrator. Open its verification email at **http://localhost:8025**.
 
 `bun run dev` creates a missing `.env` with generated local credentials, starts
-PostgreSQL and Mailpit, prepares the database and shared types, then runs the
+PostgreSQL and Mailpit, verifies the database connection and prepares its schema,
+builds shared types, then runs the
 website, API, monitoring worker, and docs. Existing `.env` settings are kept.
 There is no separate full build or manual database setup.
 

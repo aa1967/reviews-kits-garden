@@ -85,7 +85,7 @@ export function DirectoryAuth() {
     e.preventDefault(); setBusy(true); setError('');
     try {
       const result = signup ? await authClient.signUp.email({ email, password, name, callbackURL: window.location.origin + destination }) : await authClient.signIn.email({ email, password, callbackURL: window.location.origin + destination });
-      if (result.error) throw new Error(result.error.message || 'Unable to sign in.');
+      if (result.error) throw new Error(result.error.message || (signup ? 'Unable to create your account.' : 'Unable to sign in.'));
       window.location.href = destination;
     } catch (cause) { setError(errorMessage(cause)); setBusy(false); }
   };

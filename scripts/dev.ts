@@ -15,13 +15,15 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const) {
   });
 }
 
-async function run(command: string[], env: NodeJS.ProcessEnv) {
+async function run(command: string[], env: NodeJS.ProcessEnv, capture = false) {
   if (interrupted) process.exit(130);
-  active = Bun.spawn(command, { cwd: root, env, stdin: 'inherit', stdout: 'inherit', stderr: 'inherit' });
+  active = Bun.spawn(command, { cwd: root, env, stdin: 'inherit', stdout: capture ? 'pipe' : 'inherit', stderr: 'inherit' });
+  const output = capture && active.stdout instanceof ReadableStream ? await new Response(active.stdout).text() : '';
   const code = await active.exited;
   active = undefined;
   if (interrupted) process.exit(130);
   if (code !== 0) process.exit(code);
+  return output;
 }
 
 try {
@@ -51,8 +53,19 @@ try {
   }
 
   console.log('Starting PostgreSQL and Mailpit...');
-  await run(['docker', 'compose', '--env-file', '.env', '-f', 'infra/docker-compose.dev.yml',
-    'up', '-d', '--wait', '--wait-timeout', '60'], env);
+  const compose = ['docker', 'compose', '--env-file', '.env', '-f', 'infra/docker-compose.dev.yml'];
+  await run([...compose, 'up', '-d', '--wait', '--wait-timeout', '60'], env);
+
+  // The launcher owns this local database; use Docker's actual host mapping.
+  // Keep the same endpoint through schema setup, Turbo, API, and worker.
+  const published = await run([...compose, 'port', 'db', '5432'], env, true);
+  const port = published.trim().split(/\r?\n/)[0]?.match(/:(\d+)$/)?.[1];
+  if (!port) throw new Error('Could not find the development database port. Check Docker Compose.');
+  database.hostname = '127.0.0.1';
+  database.port = port;
+  env.DATABASE_URL = database.href;
+  console.log('Using development PostgreSQL at 127.0.0.1:' + port);
+  await run([process.execPath, 'scripts/check-database.ts'], env);
 
   console.log('Building shared types...');
   await run([process.execPath, 'run', 'build', '--filter=@reviewskits/types'], env);

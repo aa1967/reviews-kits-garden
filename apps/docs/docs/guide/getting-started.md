@@ -5,7 +5,8 @@ including its independent public review directory.
 
 ## Local development
 
-Install [Bun 1.4.4](https://bun.sh/) and Docker with Compose v2, then run:
+Install Bun 1.4.4 using the [official installer commands in this fork's README](https://github.com/aa1967/reviews-kits-garden#local-development),
+and install Docker with Compose v2. Then run:
 
 ```bash
 git clone https://github.com/aa1967/reviews-kits-garden.git

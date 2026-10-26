@@ -14,7 +14,7 @@ Thanks for taking the time to contribute. This guide will get you up and running
 
 ## Setup
 
-Install [Bun 1.4.4](https://bun.sh/) and Docker with Compose v2.
+Install [Bun 1.4.4 using the README commands](README.md#local-development) and Docker with Compose v2.
 
 ```bash
 git clone https://github.com/aa1967/reviews-kits-garden.git

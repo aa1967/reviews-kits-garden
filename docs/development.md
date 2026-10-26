@@ -3,6 +3,8 @@
 For ordinary local use, follow the four commands in the [README](../README.md#local-development).
 `bun run dev` and `make dev` use the same launcher. A full production build is
 not required to launch development.
+The README includes Bun's official installer commands for Debian/Linux, macOS,
+and Windows; the project uses Bun 1.4.4.
 
 ## What startup does
 
@@ -10,8 +12,10 @@ not required to launch development.
    and Mailpit settings. It never replaces an existing file.
 2. Starts PostgreSQL and Mailpit using the development Compose file and waits
    up to 60 seconds for them to become ready.
-3. Builds the shared types package and prepares the local database schema.
-4. Starts the frontend, API, monitoring worker, and documentation server.
+3. Uses Docker's published database port on `127.0.0.1`, builds shared types,
+   and prepares the local database schema.
+4. Verifies a real connection with Bun's SQL driver, then starts the frontend,
+   API, monitoring worker, and documentation server.
 
 PostgreSQL and Mailpit keep running after Ctrl+C so restarting the app is quick.
 Run `bun run db:stop` or `make stop` to stop infrastructure while preserving volumes.
@@ -33,6 +37,10 @@ keeps its existing accounts and administrator.
 ## Existing or custom configuration
 
 The launcher keeps existing `.env` values and inherited environment variables.
+For its Docker-managed database it aligns the runtime connection with the actual
+published port using IPv4 loopback, and passes that URL consistently to schema
+setup, the API, and the worker. This also handles an older local `.env` pointing
+to a different port, without rewriting that file or changing its credentials.
 Its database setup accepts only a local PostgreSQL URL and refuses production
 mode. If a reused database volume rejects its password, use the credentials
 originally used to create that volume; changing `.env` alone does not change a
@@ -50,6 +58,9 @@ with `bun run build --filter=@reviewskits/types` when using that advanced path.
 Docker must be installed and its daemon running. If startup reports a port
 conflict, stop the conflicting service or adjust your local Compose ports and
 matching `.env` URLs. Startup errors stop the launcher instead of waiting forever.
+If PostgreSQL is unavailable, startup stops with its host and port before launching
+the website. It does not print database passwords. Use `bun run dev` for ordinary
+startup; `dev:app` expects an already reachable database.
 
 ## Optional services
 
