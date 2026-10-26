@@ -10,7 +10,7 @@ If you want to run Reviewskits locally to build features or fix bugs, follow the
 
 ### Prerequisites
 - [Bun](https://bun.sh/) (Version >= 1.0)
-- [Docker](https://www.docker.com/) (to run database and cache)
+- [Docker](https://www.docker.com/) (for the database and local email testing)
 
 ### Local Environment Setup
 
@@ -29,7 +29,7 @@ cp .env.example .env
 
 3. **Infrastructure**:
 ```bash
-# Start Postgres, Redis, and Minio
+# Start PostgreSQL and Mailpit
 docker compose -f infra/docker-compose.dev.yml up -d
 ```
 
@@ -40,6 +40,14 @@ ensure its files are writable by that UID; do not delete the volume to resolve a
 permissions error. To refresh the maintained image, run:
 
     docker compose -f infra/docker-compose.dev.yml pull minio
+
+Redis and MinIO do not start by default. Enable their profiles only when needed:
+
+    bun run cache:start       # Redis
+    bun run storage:start     # Chainguard MinIO
+
+Stop an extra service with bun run cache:stop or bun run storage:stop. To stop
+every profile while retaining data, use make stop or bun run db:stop.
 
 4. **Run**:
 ```bash

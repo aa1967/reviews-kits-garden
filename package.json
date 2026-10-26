@@ -16,7 +16,11 @@
     "test:unit": "bun run build --filter=@reviewskits/core && bun run --cwd apps/server test:unit && bun run --cwd packages/sdk-core test && bun run --cwd packages/sdk-react test && bun run --cwd packages/sdk-vue test",
     "prepare": "husky",
     "db:start": "docker compose --env-file .env -f infra/docker-compose.dev.yml up -d",
-    "db:stop": "docker compose -f infra/docker-compose.dev.yml down",
+    "db:stop": "docker compose --profile '*' -f infra/docker-compose.dev.yml down",
+    "cache:start": "docker compose --env-file .env -f infra/docker-compose.dev.yml --profile cache up -d redis",
+    "cache:stop": "docker compose --env-file .env -f infra/docker-compose.dev.yml --profile cache stop redis",
+    "storage:start": "docker compose --env-file .env -f infra/docker-compose.dev.yml --profile storage up -d minio",
+    "storage:stop": "docker compose --env-file .env -f infra/docker-compose.dev.yml --profile storage stop minio",
     "db:reset": "docker compose -f infra/docker-compose.dev.yml down -v && bun run db:start && sleep 3 && cd apps/server && bun run db:push && bun run db:seed:admin"
   },
   "devDependencies": {

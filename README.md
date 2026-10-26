@@ -161,13 +161,14 @@ Compose overlay; the upstream image commands above do not contain these changes.
 
 ### Prerequisites
 - [Bun](https://bun.sh/)
-- [Docker](https://www.docker.com/) (for Postgres, Redis, Minio)
+- [Docker](https://www.docker.com/) (for PostgreSQL and local email testing)
 
 The optional development MinIO service uses the maintained
 [Chainguard image](https://images.chainguard.dev/directory/image/minio/overview)
 at cgr.dev/chainguard/minio:latest. Its service name, ports, credentials and
-minio-dev-data volume remain the same. The public directory currently does not
-require object storage.
+minio-dev-data volume remain the same. Redis and MinIO are opt-in: ordinary
+startup runs only PostgreSQL and Mailpit. The app and monitoring worker start
+with bun run dev.
 
 ```bash
 # Install dependencies
@@ -179,6 +180,16 @@ docker compose -f infra/docker-compose.dev.yml up -d
 # Run dev server
 bun run dev
 ```
+
+Enable extra services only when a feature needs them:
+
+    bun run cache:start       # Redis; also available as make cache
+    bun run storage:start     # Chainguard MinIO; also available as make storage
+
+Use bun run cache:stop or bun run storage:stop to stop an extra service.
+make stop and bun run db:stop stop all profiles and preserve their data volumes.
+For future images or attachments, a backed-up persistent local folder is also an
+option; the current text-review directory does not require an object store.
 
 ---
 

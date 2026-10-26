@@ -35,9 +35,15 @@ cp .env.example .env
 make dev
 ```
 
-`make dev` handles the full setup automatically: starts the Docker infrastructure (PostgreSQL, Redis, MinIO, Mailpit), waits for the database to be ready, pushes the schema, and starts the dev server in hot-reload mode.
+`make dev` starts PostgreSQL and Mailpit, waits for the database, pushes the schema,
+and starts the app and monitoring worker. Redis and Chainguard MinIO remain
+available through the opt-in cache and storage profiles.
 
-To stop the infrastructure:
+Enable them with make cache / bun run cache:start or make storage /
+bun run storage:start. Stop an extra service with bun run cache:stop or
+bun run storage:stop. These commands retain its data volume.
+
+To stop all infrastructure profiles while retaining data volumes:
 ```bash
 make stop
 ```

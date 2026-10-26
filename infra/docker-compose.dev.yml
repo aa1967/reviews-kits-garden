@@ -1,6 +1,7 @@
 # ┌─────────────────────────────────────────────────────────────────┐
 # │  Local Development — infrastructure only                        │
-# │  Starts: PostgreSQL, Redis, MinIO, Mailpit                       │
+# │  Default: PostgreSQL and Mailpit                                │
+# │  Optional profiles: cache (Redis), storage (MinIO)               │
 # │  The application (bun dev) runs on the host, not in Docker      │
 # │  Usage  : make dev  (or docker compose -f infra/docker-compose.dev.yml up -d) │
 # └─────────────────────────────────────────────────────────────────┘
@@ -22,6 +23,7 @@ services:
       retries: 5
 
   redis:
+    profiles: ["cache"]
     image: redis:7-alpine
     restart: unless-stopped
     ports:
@@ -35,6 +37,7 @@ services:
       retries: 5
 
   minio:
+    profiles: ["storage"]
     image: cgr.dev/chainguard/minio:latest
     restart: unless-stopped
     command: server /data --console-address ":9001"

@@ -102,6 +102,16 @@ Use the existing checkout; cloud tasks are already isolated and do not need anot
 
 The prepared cloud helper /workspace/.cloud-setup/reviews-kits/install.sh reproduces local installation, PostgreSQL, Mailpit, separate development/test schemas and all workspace builds. The snapshot retains the installed dependencies, not live processes.
 
+The development Compose file also defaults to only PostgreSQL and Mailpit.
+Optional Redis and Chainguard MinIO definitions, ports and volumes are retained
+behind the cache and storage profiles. Use bun run cache:start or
+bun run storage:start to enable them, and cache:stop / storage:stop to pause them
+without deleting data. make stop and bun run db:stop include all profiles and
+retain their volumes. Production directory deployments require PostgreSQL, the
+app, the worker and email delivery; S3 and Redis are not current dependencies.
+If uploads are added later, a backed-up persistent local filesystem is a suitable
+small-installation option alongside the retained S3-compatible service.
+
 Tests use the tracked server runner in apps/server/scripts/test.ts. From the repository root, run:
 
     bun run test
