@@ -33,6 +33,14 @@ cp .env.example .env
 docker compose -f infra/docker-compose.dev.yml up -d
 ```
 
+The optional MinIO service uses cgr.dev/chainguard/minio:latest and keeps the
+same S3 endpoint, console port and data volume. Chainguard runs it as UID 65532.
+If you already have a volume from the old image, back it up before upgrading and
+ensure its files are writable by that UID; do not delete the volume to resolve a
+permissions error. To refresh the maintained image, run:
+
+    docker compose -f infra/docker-compose.dev.yml pull minio
+
 4. **Run**:
 ```bash
 bun run dev

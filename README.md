@@ -163,6 +163,12 @@ Compose overlay; the upstream image commands above do not contain these changes.
 - [Bun](https://bun.sh/)
 - [Docker](https://www.docker.com/) (for Postgres, Redis, Minio)
 
+The optional development MinIO service uses the maintained
+[Chainguard image](https://images.chainguard.dev/directory/image/minio/overview)
+at cgr.dev/chainguard/minio:latest. Its service name, ports, credentials and
+minio-dev-data volume remain the same. The public directory currently does not
+require object storage.
+
 ```bash
 # Install dependencies
 bun install
