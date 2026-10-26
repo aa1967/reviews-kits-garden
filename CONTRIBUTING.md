@@ -6,8 +6,8 @@ Thanks for taking the time to contribute. This guide will get you up and running
 
 ## Before you start
 
-- Check [existing issues](https://github.com/reviews-kits-team/reviews-kits/issues) before opening a new one
-- For big changes, open an issue first to discuss — avoid spending time on a PR that won't be merged
+- Check [existing pull requests](https://github.com/aa1967/reviews-kits-garden/pulls) before starting a change.
+- Describe larger changes in a pull request so their scope can be reviewed.
 - Read the [Code of Conduct](./CODE_OF_CONDUCT.md)
 
 ---
@@ -15,25 +15,30 @@ Thanks for taking the time to contribute. This guide will get you up and running
 ## Setup
 
 **Requirements:**
-- [Bun](https://bun.sh) >= 1.0
+- [Bun](https://bun.sh) 1.4.4
 - [Docker](https://docker.com) >= 24.0
 - [Git](https://git-scm.com)
 - [Make](https://www.gnu.org/software/make/) (pre-installed on macOS and Linux)
 
 ```bash
-# 1. Fork the repo, then clone your fork
-git clone https://github.com/reviews-kits-team/reviews-kits.git
-cd reviews-kits
+# 1. Clone this repository (or substitute your own fork URL when contributing)
+git clone https://github.com/aa1967/reviews-kits-garden.git
+cd reviews-kits-garden
 
 # 2. Install dependencies
-bun install
+bun install --frozen-lockfile
 
 # 3. Copy environment variables
 cp .env.example .env
+# Configure the database, auth secret, and local Mailpit settings from README.md.
 
-# 4. Start everything with a single command
+# 4. Build shared packages and start development
+bun run build
 make dev
 ```
+
+Follow the [README local setup](README.md#local-development) for the exact `.env`
+values and first-account/email verification steps.
 
 `make dev` starts PostgreSQL and Mailpit, waits for the database, pushes the schema,
 and starts the app and monitoring worker. Redis and Chainguard MinIO remain
@@ -54,10 +59,10 @@ If you are on Windows and don't have `make`, run these steps manually:
 
 ```bash
 # Start infrastructure
-docker compose -f infra/docker-compose.dev.yml up -d
+docker compose --env-file .env -f infra/docker-compose.dev.yml up -d --wait
 
-# Wait for the DB to be ready, then push the schema
-cd apps/server && bun run db:push && cd ../..
+# Prepare the development schema
+bun run --cwd apps/server db:push
 
 # Start the dev server
 bun run dev
@@ -84,7 +89,7 @@ bun run test:unit
 
 ## Database & Migrations
 
-The API uses **Drizzle ORM** with PostgreSQL. The schema is defined in `apps/server/src/db/schema.ts` (or equivalent).
+The API uses **Drizzle ORM** with PostgreSQL. The schema is defined in `apps/server/src/infrastructure/database/schema.ts`.
 
 When you make changes to the database schema:
 1. Make sure your local database is running (`docker compose -f infra/docker-compose.dev.yml up -d`).
@@ -145,7 +150,7 @@ git commit -m "WIP"
 ## Project structure
 
 ```
-reviews-kits/
+reviews-kits-garden/
 ├── apps/
 │   ├── server/        ← Hono API + Better-Auth
 │   ├── admin/         ← React + Vite admin dashboard
@@ -196,15 +201,15 @@ import { userSchema } from '@reviewskits/types';
 
 ## What you can contribute
 
-**Good first issues** — look for issues tagged [`good first issue`](https://github.com/reviews-kits-team/reviews-kits/labels/good%20first%20issue). These are small, well-defined tasks ideal if you're new to the project.
+**Small changes** — documentation improvements and focused bug fixes are good starting points.
 
 **Bug fixes** — always welcome. Please link the issue in your PR.
 
-**Features** — open an issue first to align before coding.
+**Features** — describe the behavior and scope in your pull request.
 
 **Documentation** — typos, unclear sections, missing examples — all PRs welcome, no issue needed.
 
-**SDK ports** — Vue, Svelte, Angular SDKs are planned. Open an issue if you want to take one.
+**SDKs** — React and Vue SDKs are retained. Discuss additional integrations in a pull request.
 
 ---
 
@@ -224,4 +229,5 @@ Before submitting your PR:
 
 ## Need help?
 
-Open a [GitHub Discussion](https://github.com/reviews-kits-team/reviews-kits/discussions) — we're happy to help.
+Start with the [README](README.md) and [directory guide](docs/public-directory.md).
+For a proposed fix, open a [pull request](https://github.com/aa1967/reviews-kits-garden/pulls).

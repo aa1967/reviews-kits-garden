@@ -1,7 +1,5 @@
-The information on this page is from the project this was forked from. 
-
 <p align="center">
-  <a href="https://github.com/reviews-kits-team/reviews-kits">
+  <a href="https://github.com/aa1967/reviews-kits-garden">
     <img src="apps/docs/docs/public/logo.svg" alt="Reviewskits Logo" width="120" height="120">
   </a>
 </p>
@@ -9,229 +7,227 @@ The information on this page is from the project this was forked from.
 <h1 align="center">Reviewskits</h1>
 
 <p align="center">
-  <strong>The Open Source, Self-Hosted Alternative to Senja.</strong><br />
-  Collect, moderate, and display customer reviews with a powerful headless API.<br />
-  <em>Your data. Your infrastructure. Your design.</em>
+  A self-hosted public review directory with independent moderation,<br />
+  verified business ownership, website monitoring, and embeddable reviews.
 </p>
 
 <p align="center">
-  <a href="https://docs.reviewskits.com"><strong>📖 Documentation</strong></a> ·
-  <a href="https://reviewskits.com"><strong>🌐 Website</strong></a> ·
-  <a href="https://github.com/reviews-kits-team/reviews-kits/issues/new?labels=bug"><strong>🐛 Report Bug</strong></a> ·
-  <a href="https://github.com/reviews-kits-team/reviews-kits/issues/new?labels=feature-request"><strong>💡 Request Feature</strong></a> ·
-  <a href="https://github.com/reviews-kits-team/reviews-kits/issues?q=label%3A%22good+first+issue%22"><strong>🙌 Good First Issues</strong></a>
+  <a href="docs/public-directory.md"><strong>Directory Guide</strong></a> ·
+  <a href="CONTRIBUTING.md"><strong>Contributing</strong></a> ·
+  <a href="https://github.com/aa1967/reviews-kits-garden/pulls"><strong>Pull Requests</strong></a> ·
+  <a href="LICENSE"><strong>AGPLv3 License</strong></a>
 </p>
 
-<p align="center">
-  <a href="https://github.com/reviews-kits-team/reviews-kits/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/license-AGPLv3-%230066CC.svg?style=for-the-badge" alt="License">
-  </a>
-  <a href="https://github.com/reviews-kits-team/reviews-kits/stargazers">
-    <img src="https://img.shields.io/github/stars/reviews-kits-team/reviews-kits?style=for-the-badge&logo=github&logoColor=white&color=yellow" alt="GitHub stars">
-  </a>
-  <a href="https://twitter.com/reviewskits">
-    <img src="https://img.shields.io/twitter/follow/reviewskits?style=for-the-badge&logo=x&logoColor=white&color=black" alt="Twitter follow">
-  </a>
-  <a href="https://github.com/reviews-kits-team/reviews-kits/issues?q=label%3A%22good+first+issue%22+is%3Aopen">
-    <img src="https://img.shields.io/github/issues/reviews-kits-team/reviews-kits/good%20first%20issue?style=for-the-badge&color=7057ff&label=good%20first%20issues" alt="Good first issues">
-  </a>
-</p>
+This is the **[aa1967/reviews-kits-garden](https://github.com/aa1967/reviews-kits-garden)**
+fork of Reviewskits. The instructions below clone and build this repository,
+including its public directory features. The original forms, testimonial
+workspace, REST API, and React/Vue SDKs remain available.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white" alt="Bun">
-  <img src="https://img.shields.io/badge/React-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
-  <img src="https://img.shields.io/badge/Hono-%23E36002.svg?style=for-the-badge&logo=hono&logoColor=white" alt="Hono">
-  <img src="https://img.shields.io/badge/TypeScript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-  <img src="https://img.shields.io/badge/Docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/PostgreSQL-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
-  <img src="https://img.shields.io/badge/TailwindCSS-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="TailwindCSS">
-  <img src="https://img.shields.io/badge/Drizzle-%23C5F74F.svg?style=for-the-badge&logo=drizzle&logoColor=black" alt="Drizzle ORM">
-  <img src="https://img.shields.io/badge/Redis-%23DC382D.svg?style=for-the-badge&logo=redis&logoColor=white" alt="Redis">
-  <img src="https://img.shields.io/badge/shadcn%2Fui-%23000000.svg?style=for-the-badge&logo=shadcnui&logoColor=white" alt="shadcn/ui">
-</p>
+## Features
 
-> **If Reviewskits saves you time or replaces a paid tool — a ⭐ means the world to us and helps other developers discover the project!**
+- **Public reviews and listings** — Visitors can browse businesses; verified-email accounts can submit reviews.
+- **Verified business ownership** — Automated DNS TXT or HTTPS-file checks prove control of a website. Owners can manage profiles, invite colleagues, and reply to reviews.
+- **Independent moderation** — Platform administrators control publication, reports, appeals, and ownership disputes. Business owners cannot remove directory reviews.
+- **Spam investigation** — A staff dashboard shows explainable risk signals and possible account connections for review.
+- **Website monitoring** — Background checks record uptime, confirmed outages, response times, TLS expiry, and DNS changes, with history and alerts.
+- **Website integrations** — Businesses can embed overall scores, latest reviews, or clearly labeled selected highlights. Overall scores include every published rating.
+- **Original Reviewskits tools** — Custom forms, owner-curated testimonials, API keys, and SDKs remain separate from independent directory scores.
 
----
+See the [directory guide](docs/public-directory.md) for permissions, workflows,
+monitoring limits, and configuration.
 
-## 📸 See it in action
-
-<table>
-  <tr>
-    <td align="center" width="50%">
-      <strong>📋 Dashboard — Manage your forms</strong><br /><br />
-      <img src=".github/assets/image-1.png" alt="Dashboard - Manage forms" width="100%" />
-    </td>
-    <td align="center" width="50%">
-      <strong>📊 Analytics — Stats & collected reviews</strong><br /><br />
-      <img src=".github/assets/image-2.png" alt="Form analytics and reviews" width="100%" />
-    </td>
-  </tr>
-  <tr>
-    <td align="center" width="50%">
-      <strong>🎨 Form Builder — Design your multi-step form</strong><br /><br />
-      <img src=".github/assets/image-3.png" alt="Multi-step form designer" width="100%" />
-    </td>
-    <td align="center" width="50%">
-      <strong>✨ Live Form — The respondent's experience</strong><br /><br />
-      <img src=".github/assets/image-4.png" alt="Public form render" width="100%" />
-    </td>
-  </tr>
-</table>
-
----
-
-## 🤔 Why Reviewskits?
-
-Platforms like Senja, Testimonial.to, or Trustpilot charge monthly fees, lock your data in their cloud, and dictate how your reviews look. **Reviewskits is different.**
-
-| | Reviewskits | Senja / Testimonial.to |
-|---|---|---|
-| 💰 Cost | **Free & Open Source** | $29–$99/month |
-| 🏠 Data ownership | **Your servers** | Their cloud |
-| 🎨 UI freedom | **100% headless** | Limited widgets |
-| 🔌 API access | **Full REST API** | Restricted |
-| 🔧 Customization | **Unlimited** | Template-based |
-| 🔒 Privacy | **GDPR on your terms** | Shared infrastructure |
-
----
-
-## 🚀 Features
-
-- **📲 Customizable Forms** — Create conversion-optimized multi-step forms with custom fields and full branding control.
-- **⚖️ Clean Moderation** — Approve or reject reviews in seconds from a unified admin dashboard.
-- **📦 Headless SDKs** — First-class support for React, Next.js, Vue, and Nuxt with zero-dependency packages.
-- **🔑 API-First** — Every feature is accessible via a secure REST API with Public & Admin key scopes.
-- **🔒 Self-Hostable** — One `docker compose up` and you're live. No external dependencies, no mandatory cloud accounts.
-- **⚡ Built for speed** — Powered by Hono on Bun. Handles thousands of requests per second on minimal hardware.
-- **🌍 Multi-form** — Manage unlimited forms and projects from a single instance.
-- **📊 Analytics** — Track response rates, review trends, and form performance out of the box.
-
----
-
-## 🛠️ Tech Stack
-
-Reviewskits is built on a modern, fully type-safe stack — no legacy, no bloat:
-
-| Layer | Technology |
-|---|---|
-| Runtime | [Bun](https://bun.sh/) |
-| Language | [TypeScript](https://www.typescriptlang.org/) |
-| Backend API | [Hono](https://hono.dev/) |
-| Frontend (Admin) | [React](https://reactjs.org/) + [TailwindCSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
-| Database | [PostgreSQL](https://www.postgresql.org/) + [Drizzle ORM](https://orm.drizzle.team/) |
-| Auth | [Better-Auth](https://better-auth.com/) |
-| Infra | [Docker](https://www.docker.com/) + Redis + Minio |
-| Docs | [VitePress](https://vitepress.dev/) |
-
----
-
-## 🏁 Getting started in 3 steps
-
-### 🐳 Self-host with Docker Compose
+## Clone this repository
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/reviews-kits-team/reviews-kits.git
-cd reviews-kits
-
-# 2. Configure environment
-cp .env.example .env
-# → Fill in ADMIN_EMAIL, ADMIN_PASSWORD, DATABASE_URL
-
-# 3. Launch 🚀
-docker compose -f infra/docker-compose.yml up -d
+git clone https://github.com/aa1967/reviews-kits-garden.git
+cd reviews-kits-garden
 ```
 
-That's it. Open `http://localhost:3000` and start collecting reviews.
+Choose local development or production deployment below. Run all commands from
+this checkout's root unless stated otherwise.
 
-### ☁️ Cloud Version
-A managed hosted version is on the way for those who prefer not to manage infrastructure. [Watch the repo](https://github.com/reviews-kits-team/reviews-kits/subscription) to be notified at launch.
+## Local development
 
----
+Requirements: Git, [Bun 1.4.4](https://bun.sh/), and Docker with Docker Compose v2.
+Make is optional.
 
-## 👨‍💻 Local Development
-
-This fork also includes an **independent public review directory** with domain
-verification, platform-controlled moderation, account-investigation tools,
-website monitoring and portable review/score widgets. See
-[the directory guide](docs/public-directory.md) for workflows, the comparison
-with ReviewsUp, configuration, and deployment. Build this fork with the directory
-Compose overlay; the upstream image commands above do not contain these changes.
-
-### Prerequisites
-- [Bun](https://bun.sh/)
-- [Docker](https://www.docker.com/) (for PostgreSQL and local email testing)
-
-The optional development MinIO service uses the maintained
-[Chainguard image](https://images.chainguard.dev/directory/image/minio/overview)
-at cgr.dev/chainguard/minio:latest. Its service name, ports, credentials and
-minio-dev-data volume remain the same. Redis and MinIO are opt-in: ordinary
-startup runs only PostgreSQL and Mailpit. The app and monitoring worker start
-with bun run dev.
+### 1. Configure the environment
 
 ```bash
-# Install dependencies
-bun install
+cp .env.example .env
+```
 
-# Start infrastructure
-docker compose -f infra/docker-compose.dev.yml up -d
+Edit `.env` and set the following values. Replace the password and auth-secret
+placeholders, and keep the database password consistent in both places. Use a
+URL-safe password, or URL-encode it in `DATABASE_URL`.
 
-# Run dev server
+```dotenv
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=replace_with_a_local_password
+POSTGRES_DB=reviewskits
+DATABASE_URL=postgresql://postgres:replace_with_a_local_password@localhost:5433/reviewskits
+BETTER_AUTH_SECRET=replace_with_a_random_secret_of_at_least_32_characters
+BASE_URL=http://localhost:5180
+BETTER_AUTH_URL=http://localhost:3000/api/auth
+SMTP_HOST=127.0.0.1
+SMTP_PORT=1025
+SMTP_FROM=no-reply@reviewskits.local
+```
+
+Leave `SMTP_USER` and `SMTP_PASS` unset for local Mailpit. It captures verification
+and notification emails locally; it does not deliver them to real inboxes.
+
+### 2. Install, build, and start
+
+```bash
+bun install --frozen-lockfile
+bun run build
+make dev
+```
+
+`make dev` starts PostgreSQL and Mailpit, waits for PostgreSQL, applies the
+**development** schema, and starts the frontend, API, docs, and monitoring worker.
+
+Without Make, after installing and building, use:
+
+```bash
+docker compose --env-file .env -f infra/docker-compose.dev.yml up -d --wait
+bun run --cwd apps/server db:push
 bun run dev
 ```
 
-Enable extra services only when a feature needs them:
+### 3. Create your account
 
-    bun run cache:start       # Redis; also available as make cache
-    bun run storage:start     # Chainguard MinIO; also available as make storage
+Open `http://localhost:5180/signup` and register. **The first account on a fresh
+database becomes the platform administrator.** Open its verification email in
+Mailpit at `http://localhost:8025` and follow the link. Setting `ADMIN_EMAIL` and
+`ADMIN_PASSWORD` alone does not create an account; explicit provisioning is
+explained in the [directory guide](docs/public-directory.md#user-journeys).
 
-Use bun run cache:stop or bun run storage:stop to stop an extra service.
-make stop and bun run db:stop stop all profiles and preserve their data volumes.
-For future images or attachments, a backed-up persistent local folder is also an
-option; the current text-review directory does not require an object store.
+| Service | Local address |
+| --- | --- |
+| Public directory and dashboard | `http://localhost:5180` |
+| Original testimonial workspace | `http://localhost:5180/workspace` |
+| Staff moderation | `http://localhost:5180/moderation` |
+| API / Swagger UI | `http://localhost:3000/ui` |
+| Email inbox (Mailpit) | `http://localhost:8025` |
+| Documentation | `http://localhost:5173` (check the terminal if that port is busy) |
+| PostgreSQL | `localhost:5433` |
 
----
+### Optional Redis and object storage
 
-## 🙌 Contributing
+Ordinary development startup runs only PostgreSQL and Mailpit in Docker. Redis
+and S3-compatible storage are retained as opt-in services; the current directory
+and monitoring features use PostgreSQL and do not require either service.
 
-Contributions are what make open source great. Here's how you can help:
+```bash
+bun run cache:start       # Redis; also available as make cache
+bun run storage:start     # Chainguard MinIO; also available as make storage
+bun run cache:stop
+bun run storage:stop
+```
 
-- **⭐ Star this repo** — it helps more developers discover Reviewskits.
-- **🐛 Report bugs** — [open an issue](https://github.com/reviews-kits-team/reviews-kits/issues/new?labels=bug) with as much detail as possible.
-- **💡 Request features** — [share your ideas](https://github.com/reviews-kits-team/reviews-kits/issues/new?labels=feature-request), we read every one.
-- **👩‍💻 Submit a PR** — check out [good first issues](https://github.com/reviews-kits-team/reviews-kits/issues?q=label%3A%22good+first+issue%22+is%3Aopen) to get started without diving into the whole codebase.
+MinIO uses the maintained [Chainguard image](https://images.chainguard.dev/directory/image/minio/overview)
+`cgr.dev/chainguard/minio:latest`. If upgrading an existing MinIO data volume, back
+it up and ensure its files are writable by UID 65532 before switching images.
 
-Please read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening a pull request. All skill levels are welcome.
+Stop the development command with Ctrl+C, then stop all infrastructure profiles
+with `make stop` or `bun run db:stop`. These commands preserve data volumes.
+For future image or attachment uploads, a backed-up persistent local folder is
+also an option; file uploads are not currently implemented.
 
----
+## Production deployment
 
-## 📆 Contact
+Use the clone above on your server. This setup needs Docker Compose v2, a domain
+pointing to the server, ports 80 and 443 available for Traefik/Let's Encrypt, and
+a working SMTP service. Bun runs inside the build/runtime images.
 
-Have a question, a partnership idea, or want to chat?
+### 1. Configure production values
 
-[📅 Book a call on Cal.com](https://cal.com/reviewskits/30min) · ✉️ `ricus2001@gmail.com`
+On a fresh checkout, copy `.env.example` to `.env`, then replace its example
+values. Use a dedicated production database, a strong unique auth secret, and
+your real SMTP settings. For example:
 
----
+```dotenv
+DOMAIN=reviews.example.com
+ACME_EMAIL=admin@example.com
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=replace_with_a_strong_url_safe_password
+POSTGRES_DB=reviewskits
+DATABASE_URL=postgresql://postgres:replace_with_a_strong_url_safe_password@db:5432/reviewskits
+BETTER_AUTH_SECRET=replace_with_a_random_secret_of_at_least_32_characters
+BASE_URL=https://reviews.example.com
+BETTER_AUTH_URL=https://reviews.example.com/api/auth
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_FROM=no-reply@example.com
+SMTP_USER=your_smtp_username
+SMTP_PASS=your_smtp_password
+SEED_ADMIN_ON_START=false
+```
 
-## 🔒 Security
+The production database hostname is **`db`**, not `localhost`. Do not reuse local
+Mailpit settings or the development database for production.
 
-Security issues should be disclosed responsibly. Please **do not** open a public issue — instead, send an email to `ricus2001@gmail.com`. See [SECURITY.md](./SECURITY.md) for details.
+### 2. Build and launch this fork
 
----
+Use **both** Compose files so the API and frontend are built from this checkout
+and the separate monitoring worker is included:
 
-## 👩‍⚖️ License
+```bash
+docker compose --env-file .env \
+  -f infra/docker-compose.yml \
+  -f infra/docker-compose.directory.yml up -d --build
+```
 
-**Reviewskits Core** is licensed under the [AGPLv3 Open Source License](./LICENSE) — free to use, self-host, and modify.
+The base Compose file alone references upstream images that do not contain this
+fork's directory features. The overlay above builds this repository's code.
+Database migrations run automatically before the API starts.
 
-**Enterprise Edition** — additional features for larger teams are available under a commercial license. See [COMMERCIAL_LICENSE.md](./COMMERCIAL_LICENSE.md) or our [License docs](https://docs.reviewskits.com/guide/license).
+### 3. Register and operate
 
-White-labeling is not currently offered. Other licensing needs? Email `ricus2001@gmail.com`.
+Open `https://YOUR_DOMAIN/signup`, create the first administrator account, and
+verify its email. No default administrator account is seeded. The deployment
+runs Traefik, PostgreSQL, the frontend, the API, and the worker; Redis and MinIO
+remain optional. Keep database backups and allow the worker to reach public DNS
+and the websites it monitors.
 
----
+For subsequent code updates, run `git pull --ff-only`, then repeat the same
+**two-file** build-and-launch command. Back up the database before applying an
+update. See the [production guide](docs/public-directory.md#production) for
+native deployment, trusted build certificates, and operational details.
 
-<p align="center">
-  Made with ❤️ by the <a href="https://github.com/reviews-kits-team">Reviewskits team</a> and <a href="https://github.com/reviews-kits-team/reviews-kits/graphs/contributors">contributors</a>
-  <br /><br />
-  <a href="#-reviewskits">🔼 Back to top</a>
-</p>
+## Development checks
+
+```bash
+bun run lint
+bun run test:unit    # Database-free checks used by the commit hook
+bun run test         # Full suite; creates and removes an isolated test database
+bun run build
+```
+
+The full test runner requires PostgreSQL and permission to create a test database,
+or an explicitly separate `TEST_DATABASE_URL`. It rejects the application database
+for integration fixtures. See [CONTRIBUTING.md](CONTRIBUTING.md) for the workflow.
+
+## Original testimonial workspace
+
+These screenshots show the retained Reviewskits forms and testimonial tools at
+`/workspace`, rather than the new public directory pages.
+
+<table>
+  <tr>
+    <td width="50%"><img src=".github/assets/image-1.png" alt="Original forms dashboard" width="100%" /></td>
+    <td width="50%"><img src=".github/assets/image-2.png" alt="Original testimonial analytics" width="100%" /></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src=".github/assets/image-3.png" alt="Original form builder" width="100%" /></td>
+    <td width="50%"><img src=".github/assets/image-4.png" alt="Original public form" width="100%" /></td>
+  </tr>
+</table>
+
+## License and attribution
+
+This fork builds on [Reviewskits by the Reviewskits team](https://github.com/reviews-kits-team/reviews-kits).
+The covered core is licensed under [AGPLv3](LICENSE). Existing copyright and
+licensing notices are retained.

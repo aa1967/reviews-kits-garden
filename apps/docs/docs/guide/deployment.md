@@ -1,5 +1,11 @@
 # Deployment
 
+> **Public directory fork:** For `aa1967/reviews-kits-garden`, use the
+> [fork's production instructions](https://github.com/aa1967/reviews-kits-garden#production-deployment).
+> They build this repository with `infra/docker-compose.directory.yml` and run
+> the monitoring worker. The upstream image examples below cover the original
+> testimonial application and do not include this fork's directory features.
+
 Reviewskits is fully containerized and designed to be self-hosted on any VPS or infrastructure supporting Docker.
 
 ---
