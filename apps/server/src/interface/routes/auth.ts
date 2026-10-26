@@ -17,7 +17,8 @@ const signUpRoute = createRoute({
             email: z.email(),
             password: z.string().min(8),
             name: z.string(),
-            image: z.string().optional()
+            image: z.string().optional(),
+            callbackURL: z.string().max(2048).optional()
           })
         }
       }
@@ -41,7 +42,8 @@ const signInRoute = createRoute({
         'application/json': {
           schema: z.object({
             email: z.email(),
-            password: z.string()
+            password: z.string(),
+            callbackURL: z.string().max(2048).optional()
           })
         }
       }

@@ -67,8 +67,11 @@ Before submitting a Pull Request, please ensure your code is clean and tested:
 # Run ESLint and TypeScript checks across all workspaces
 bun run lint
 
-# Run the test suite
+# Run the complete suite in an isolated test database
 bun run test
+
+# Run the database-free checks used before committing
+bun run test:unit
 ```
 
 ---
@@ -95,7 +98,7 @@ git checkout -b fix/my-bug
 # 2. Make your changes
 
 # 3. Commit using conventional commits (see below)
-# Note: Husky will automatically run `bun run lint && bun run test` before committing.
+# Note: Husky will automatically run `bun run lint && bun run test:unit` before committing.
 # If these checks fail, your commit will be rejected.
 git commit -m "feat: add CSV import endpoint"
 

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { authClient } from "@/lib/auth-client";
 
 interface AuthGuardProps {
@@ -8,6 +8,7 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children }: AuthGuardProps) {
   const { data: session, isPending } = authClient.useSession();
+  const location = useLocation();
 
   if (isPending) {
     return (
@@ -18,7 +19,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
   }
 
   if (!session) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
 
   return children ? <>{children}</> : <Outlet />;

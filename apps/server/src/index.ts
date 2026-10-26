@@ -12,6 +12,7 @@ import { dashboardRouter } from './interface/routes/dashboard';
 import { testimonialsRouter } from './interface/routes/testimonials';
 import webhooksRouter from './interface/routes/webhooks';
 import { notificationsRouter } from './interface/routes/notifications';
+import { directoryRouter } from './directory/router';
 
 
 const app = new OpenAPIHono();
@@ -81,6 +82,7 @@ app.route('/api/v1/dashboard', dashboardRouter);
 app.route('/api/v1/testimonials', testimonialsRouter);
 app.route('/api/v1/webhooks', webhooksRouter);
 app.route('/api/v1/notifications', notificationsRouter);
+app.route('/api/v1/directory', directoryRouter);
 
 // Welcome Route
 app.get('/', (c) => {

@@ -1,5 +1,5 @@
 # ─── Build ────────────────────────────────────────────────────
-FROM oven/bun:1-alpine AS builder
+FROM oven/bun:1.4.4-alpine AS builder
 WORKDIR /app
 
 # Copier les package.json du workspace
@@ -14,7 +14,12 @@ COPY packages/sdk-vue/package.json ./packages/sdk-vue/
 COPY packages/sdk-vue/playground/package.json ./packages/sdk-vue/playground/
 COPY packages/sdk-core/package.json ./packages/sdk-core/
 
-RUN bun install --frozen-lockfile
+# Optional build-only corporate/cloud CA. Verification remains enabled.
+RUN --mount=type=secret,id=build_ca \
+    if [ -s /run/secrets/build_ca ]; then \
+      export NODE_EXTRA_CA_CERTS=/run/secrets/build_ca; \
+    fi; \
+    HUSKY=0 bun install --frozen-lockfile
 
 # Copier les sources
 COPY packages/types ./packages/types

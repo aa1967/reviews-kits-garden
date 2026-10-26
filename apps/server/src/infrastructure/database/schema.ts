@@ -1,4 +1,5 @@
-import { pgTable, uuid, text, timestamp, boolean, jsonb, integer, index, unique, date } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, jsonb, integer, index, unique, date, check } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 
 // ═══════════════════════════════════════
 // USERS & AUTH (Better-auth)
@@ -204,4 +205,154 @@ export const rateLimits = pgTable('rate_limits', {
   key: text('key').primaryKey(),
   count: integer('count').notNull().default(0),
   resetAt: timestamp('reset_at').notNull(),
+});
+
+// Independent directory data is intentionally separate from owner-curated testimonials.
+export const directoryBusinesses = pgTable('directory_businesses', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  domain: text('domain').notNull().unique(),
+  name: text('name').notNull(),
+  description: text('description').notNull().default(''),
+  category: text('category').notNull().default('Other'),
+  listed: boolean('listed').notNull().default(true),
+  ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
+  claimedAt: timestamp('claimed_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const directoryMembers = pgTable('directory_members', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessId: uuid('business_id').notNull().references(() => directoryBusinesses.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({ membership: unique('directory_members_unique').on(t.businessId, t.userId) }));
+
+export const directoryInvites = pgTable('directory_invites', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessId: uuid('business_id').notNull().references(() => directoryBusinesses.id, { onDelete: 'cascade' }),
+  email: text('email').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  acceptedAt: timestamp('accepted_at'),
+});
+
+export const directoryClaims = pgTable('directory_claims', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessId: uuid('business_id').notNull().references(() => directoryBusinesses.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  method: text('method', { enum: ['dns', 'file'] }).notNull(),
+  token: text('token').notNull(),
+  status: text('status', { enum: ['pending', 'verified', 'expired', 'conflict'] }).notNull().default('pending'),
+  expiresAt: timestamp('expires_at').notNull(),
+  verifiedAt: timestamp('verified_at'),
+  nextCheckAt: timestamp('next_check_at').notNull().defaultNow(),
+  attempts: integer('attempts').notNull().default(0),
+  lastError: text('last_error'),
+  proofMissingSince: timestamp('proof_missing_since'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({ due: index('directory_claims_due').on(t.status, t.nextCheckAt) }));
+
+export const directoryReviews = pgTable('directory_reviews', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessId: uuid('business_id').notNull().references(() => directoryBusinesses.id, { onDelete: 'cascade' }),
+  reviewerId: uuid('reviewer_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  title: text('title').notNull(),
+  content: text('content').notNull(),
+  rating: integer('rating').notNull(),
+  status: text('status', { enum: ['pending', 'published', 'quarantined', 'rejected'] }).notNull().default('pending'),
+  riskScore: integer('risk_score').notNull().default(0),
+  riskReasons: jsonb('risk_reasons').$type<string[]>().notNull().default([]),
+  networkKey: text('network_key'),
+  fingerprint: text('fingerprint').notNull(),
+  moderationReason: text('moderation_reason'),
+  reply: text('reply'),
+  replyBy: uuid('reply_by').references(() => users.id, { onDelete: 'set null' }),
+  replyAt: timestamp('reply_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => ({
+  reviewerBusiness: unique('directory_review_one_per_person').on(t.businessId, t.reviewerId),
+  published: index('directory_reviews_business_status').on(t.businessId, t.status),
+  network: index('directory_reviews_network').on(t.networkKey),
+  fingerprint: index('directory_reviews_fingerprint').on(t.fingerprint),
+  ratingValid: check('directory_review_rating_valid', sql.raw('"rating" BETWEEN 1 AND 5')),
+  statusValid: check('directory_review_status_valid', sql.raw("status IN ('pending', 'published', 'quarantined', 'rejected')")),
+}));
+
+export const directoryReports = pgTable('directory_reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  reviewId: uuid('review_id').notNull().references(() => directoryReviews.id, { onDelete: 'cascade' }),
+  reporterId: uuid('reporter_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  kind: text('kind', { enum: ['report', 'appeal'] }).notNull(),
+  reason: text('reason').notNull(),
+  resolution: text('resolution'),
+  resolvedAt: timestamp('resolved_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({ oneReport: unique('directory_reports_unique').on(t.reviewId, t.reporterId, t.kind) }));
+
+export const directoryAudit = pgTable('directory_audit', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  actorId: uuid('actor_id').references(() => users.id, { onDelete: 'set null' }),
+  action: text('action').notNull(),
+  targetId: uuid('target_id').notNull(),
+  note: text('note').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const directoryMonitors = pgTable('directory_monitors', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  businessId: uuid('business_id').notNull().unique().references(() => directoryBusinesses.id, { onDelete: 'cascade' }),
+  url: text('url').notNull(),
+  expectedText: text('expected_text').notNull().default(''),
+  enabled: boolean('enabled').notNull().default(false),
+  startedAt: timestamp('started_at'),
+  lastResult: text('last_result', { enum: ['up', 'down', 'unknown'] }).notNull().default('unknown'),
+  lastCheckAt: timestamp('last_check_at'),
+  responseMs: integer('response_ms'),
+  tlsExpiresAt: timestamp('tls_expires_at'),
+  dnsAddresses: text('dns_addresses'),
+  lastDnsAlertAt: timestamp('last_dns_alert_at'),
+  widgetInstalled: boolean('widget_installed'),
+  failureStreak: integer('failure_streak').notNull().default(0),
+  recoveryStreak: integer('recovery_streak').notNull().default(0),
+  firstFailureAt: timestamp('first_failure_at'),
+  nextCheckAt: timestamp('next_check_at').notNull().defaultNow(),
+  leaseUntil: timestamp('lease_until'),
+  leaseToken: uuid('lease_token'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+}, (t) => ({ due: index('directory_monitors_due').on(t.enabled, t.nextCheckAt) }));
+
+export const directoryChecks = pgTable('directory_checks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  monitorId: uuid('monitor_id').notNull().references(() => directoryMonitors.id, { onDelete: 'cascade' }),
+  result: text('result', { enum: ['up', 'down', 'unknown'] }).notNull(),
+  responseMs: integer('response_ms'),
+  statusCode: integer('status_code'),
+  detail: text('detail').notNull(),
+  checkedAt: timestamp('checked_at').notNull().defaultNow(),
+}, (t) => ({ history: index('directory_checks_history').on(t.monitorId, t.checkedAt) }));
+
+export const directoryIncidents = pgTable('directory_incidents', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  monitorId: uuid('monitor_id').notNull().references(() => directoryMonitors.id, { onDelete: 'cascade' }),
+  startedAt: timestamp('started_at').notNull(),
+  confirmedAt: timestamp('confirmed_at').notNull(),
+  endedAt: timestamp('ended_at'),
+  reason: text('reason').notNull(),
+}, (t) => ({ monitor: index('directory_incidents_monitor').on(t.monitorId, t.startedAt) }));
+
+export const directoryMail = pgTable('directory_mail', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  to: text('recipient').notNull(),
+  subject: text('subject').notNull(),
+  body: text('body').notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  nextAttemptAt: timestamp('next_attempt_at').notNull().defaultNow(),
+  sentAt: timestamp('sent_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
+export const directoryWorkers = pgTable('directory_workers', {
+  name: text('name').primaryKey(),
+  lastSeenAt: timestamp('last_seen_at').notNull().defaultNow(),
 });

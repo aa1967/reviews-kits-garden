@@ -4,8 +4,13 @@ import { users } from "../src/infrastructure/database/schema";
 import { eq } from "drizzle-orm";
 
 async function seedAdmin() {
-  const adminEmail = process.env.ADMIN_EMAIL || "admin@reviewskits.com";
-  const adminPassword = process.env.ADMIN_PASSWORD || "admin_secure_password";
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPassword || adminPassword.length < 12) {
+    console.error("[SEED] Set ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters to provision an admin.");
+    process.exit(1);
+  }
+  let exitCode = 0;
   
   console.log(`[SEED] Starting admin seeder for email: ${adminEmail}`);
 
@@ -45,13 +50,13 @@ async function seedAdmin() {
 
       console.log(`[SEED] Super Admin created successfully!`);
       console.log(`[SEED] Email: ${adminEmail}`);
-      console.log(`[SEED] Password: ${adminPassword}`);
     }
 
   } catch (error) {
+    exitCode = 1;
     console.error("[SEED] Error seeding admin:", error);
   } finally {
-    process.exit(0);
+    process.exit(exitCode);
   }
 }
 

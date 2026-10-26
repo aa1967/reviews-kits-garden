@@ -14,10 +14,16 @@
       ]
     },
     "lint": {
+      "dependsOn": ["^build"],
       "cache": true
     },
     "test": {
-      "cache": true
+      "dependsOn": ["^build"],
+      "passThroughEnv": [
+        "DATABASE_URL", "TEST_DATABASE_URL", "POSTGRES_USER", "POSTGRES_PASSWORD",
+        "POSTGRES_DB", "BETTER_AUTH_SECRET", "BETTER_AUTH_URL", "BASE_URL", "NODE_ENV"
+      ],
+      "cache": false
     }
   }
 }

@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
-import { authClient } from './lib/auth-client'
 import { AuthGuard } from './components/auth-guard'
-import LoginPage from './pages/LoginPage'
 import DashboardPage from './pages/DashboardPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
@@ -12,6 +10,7 @@ import TestimonialDetailPage from './pages/TestimonialDetailPage'
 import IntegrationsPage from './pages/IntegrationsPage'
 import SecurityPage from './pages/SecurityPage'
 import NotificationsPage from './pages/NotificationsPage'
+import { BusinessDirectoryPage, DirectoryAuth, DirectoryDashboard, DirectoryHome, DirectoryModeration, DirectoryPrinciples, ManageDirectoryBusiness } from './pages/DirectoryPages'
 import './App.css'
 
 // Apply saved theme before first render to avoid flash
@@ -21,7 +20,6 @@ if (savedTheme === 'light') {
 }
 
 function App() {
-  const { data: session } = authClient.useSession()
   const location = useLocation()
 
   return (
@@ -29,15 +27,22 @@ function App() {
       <Routes location={location}>
         <Route
           path="/login"
-          element={session ? <Navigate to="/" replace /> : <LoginPage />}
+          element={<DirectoryAuth />}
         />
+        <Route path="/signup" element={<DirectoryAuth />} />
+        <Route path="/" element={<DirectoryHome />} />
+        <Route path="/business/:domain" element={<BusinessDirectoryPage />} />
+        <Route path="/principles" element={<DirectoryPrinciples />} />
 
         {/* Public Form Route */}
         <Route path="/f/:slug" element={<PublicFormPage />} />
 
         {/* Protected Routes */}
         <Route element={<AuthGuard />}>
-          <Route path="/" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<DirectoryDashboard />} />
+          <Route path="/moderation" element={<DirectoryModeration />} />
+          <Route path="/business/:domain/manage" element={<ManageDirectoryBusiness />} />
+          <Route path="/workspace" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
@@ -48,7 +53,7 @@ function App() {
           <Route path="/forms/:formId/testimonials/:id" element={<TestimonialDetailPage />} />
         </Route>
 
-        <Route path="*" element={<Navigate to={session ? "/" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </div>
   )

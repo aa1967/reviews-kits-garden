@@ -1,0 +1,41 @@
+name: Reusable checks
+
+on:
+  workflow_call:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5433/postgres
+      BETTER_AUTH_SECRET: ci-only-reviewskits-secret-at-least-32-characters
+      HUSKY: "0"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4.4"
+      - name: Install frozen dependencies
+        run: bun install --frozen-lockfile
+      - name: Build all workspaces
+        run: bun run build --concurrency=2
+      - name: Lint and type-check
+        run: bun run lint --concurrency=2
+      - name: Run all server and SDK tests with isolated test databases
+        run: bun run test

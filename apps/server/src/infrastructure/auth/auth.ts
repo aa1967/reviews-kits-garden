@@ -4,6 +4,7 @@ import { bearer } from "better-auth/plugins";
 import { sql } from "drizzle-orm";
 import { db } from "../database/db";
 import * as schema from "../database/schema";
+import { mailConfigured, publicBaseUrl, sendDirectoryMail } from "../../directory/mail";
 
 const secret = process.env.BETTER_AUTH_SECRET || (process.env.NODE_ENV === 'test' ? 'test-secret-must-be-at-least-32-characters-long' : undefined);
 if (!secret) {
@@ -24,6 +25,12 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  emailVerification: {
+    sendOnSignUp: process.env.NODE_ENV !== 'test' && mailConfigured(),
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendDirectoryMail(user.email, "Verify your Reviewskits account", "Verify your email to write reviews or claim a website:\n\n" + url);
+    },
+  },
   plugins: [
     bearer(),
   ],
@@ -32,6 +39,7 @@ export const auth = betterAuth({
       isSystemAdmin: {
         type: "boolean",
         defaultValue: false,
+        input: false,
       },
     },
   },
@@ -73,12 +81,15 @@ export const auth = betterAuth({
   secret,
   // Base URL for auth endpoints
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000/api/auth",
-  trustedOrigins: process.env.AUTH_TRUSTED_ORIGINS 
+  trustedOrigins: [
+    publicBaseUrl(),
+    ...(process.env.AUTH_TRUSTED_ORIGINS
     ? process.env.AUTH_TRUSTED_ORIGINS.split(',').map(o => o.trim())
     : [
         "http://localhost:5180", // Admin Frontend
         "http://localhost:3000", // Swagger / Local API
         "http://localhost",       // Tests
         "http://localhost:5174",
-      ],
+      ]),
+  ],
 });

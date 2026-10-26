@@ -11,8 +11,10 @@
     "postgres": "^3.4.8"
   },
   "scripts": {
-    "dev": "bun --env-file=../../.env run --hot src/index.ts",
-    "build": "bun build src/index.ts --outdir dist --target bun",
+    "dev": "bun run --parallel dev:api worker",
+    "dev:api": "bun --env-file=../../.env run --hot src/index.ts",
+    "build": "bun build src/index.ts src/worker.ts --outdir dist --target bun",
+    "worker": "bun --env-file=../../.env src/worker.ts",
     "db:push": "bun --env-file=../../.env drizzle-kit push",
     "db:studio": "bun --env-file=../../.env drizzle-kit studio",
     "db:generate": "bun --env-file=../../.env drizzle-kit generate",
@@ -20,7 +22,8 @@
     "db:seed:admin": "bun --env-file=../../.env scripts/seed-admin.ts",
     "test:e2e:prepare": "bun --env-file=../../.env scripts/prepare-e2e-db.ts",
     "lint": "tsc --noEmit",
-    "test": "bun test --env-file=../../.env --max-concurrency 1"
+    "test": "bun --env-file=../../.env scripts/test.ts",
+    "test:unit": "bun scripts/test.ts --unit"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -34,8 +37,10 @@
     "better-auth": "^1.5.5",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.12.8",
+    "ipaddr.js": "2.2.0",
     "nodemailer": "^8.0.4",
     "react": "^19.2.4",
+    "tldts": "7.0.28",
     "zod": "^4.3.6"
   }
 }

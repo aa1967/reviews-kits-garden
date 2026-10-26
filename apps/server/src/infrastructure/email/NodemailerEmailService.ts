@@ -20,15 +20,15 @@ export class NodemailerEmailService implements IEmailService {
     const user = process.env.SMTP_USER ?? '';
     const port = Number(process.env.SMTP_PORT) || 587;
 
-    this.smtpUser = user;
+    this.smtpUser = process.env.SMTP_FROM || user;
     this.transporter = nodemailer.createTransport({
       host,
       port,
       secure: port === 465,
-      auth: {
+      ...(user && process.env.SMTP_PASS ? { auth: {
         user,
         pass: process.env.SMTP_PASS,
-      },
+      } } : {}),
     });
   }
 

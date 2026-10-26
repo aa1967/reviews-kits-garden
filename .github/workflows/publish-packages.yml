@@ -7,6 +7,9 @@ on:
 
 jobs:
   version-or-publish:
+    # Forks do not own the upstream @reviewskits npm packages. Enable explicitly
+    # only after configuring release ownership and NPM_TOKEN for this repository.
+    if: vars.ENABLE_SDK_PUBLISHING == 'true'
     name: Version or Publish
     runs-on: ubuntu-latest
     
@@ -24,7 +27,7 @@ jobs:
       - name: 🐇 Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 'latest'
+          bun-version: '1.4.4'
 
       - name: 🟢 Setup Node.js
         uses: actions/setup-node@v4
@@ -33,7 +36,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: 📥 Installer les dépendances
-        run: bun install
+        run: HUSKY=0 bun install --frozen-lockfile
 
       - name: 🏗️ Build du projet
         run: bun run build

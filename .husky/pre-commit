@@ -1,1 +1,13 @@
-bun run lint && bun run test && bun run build
+#!/usr/bin/env sh
+set -eu
+
+# Git GUIs may not inherit the interactive shell's Bun installation path.
+export PATH="${BUN_INSTALL:-$HOME/.bun}/bin:$PATH"
+if ! command -v bun >/dev/null 2>&1; then
+  echo "Bun 1.4.4 is required. Install Bun or add its bin directory to your Git environment." >&2
+  exit 1
+fi
+
+# Keep commits independent of database services. CI runs the full suite.
+bun run lint
+bun run test:unit

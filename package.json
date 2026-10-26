@@ -2,7 +2,7 @@
   "name": "reviews-kits",
   "private": true,
   "type": "module",
-  "packageManager": "bun@1.0.0",
+  "packageManager": "bun@1.4.4",
   "workspaces": [
     "apps/*",
     "packages/*",
@@ -13,6 +13,7 @@
     "dev": "turbo dev --filter=@reviewskits/admin --filter=@reviewskits/server --filter=docs",
     "lint": "turbo lint",
     "test": "turbo test",
+    "test:unit": "bun run build --filter=@reviewskits/core && bun run --cwd apps/server test:unit && bun run --cwd packages/sdk-core test && bun run --cwd packages/sdk-react test && bun run --cwd packages/sdk-vue test",
     "prepare": "husky",
     "db:start": "docker compose --env-file .env -f infra/docker-compose.dev.yml up -d",
     "db:stop": "docker compose -f infra/docker-compose.dev.yml down",

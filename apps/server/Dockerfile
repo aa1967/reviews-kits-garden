@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS base
+FROM oven/bun:1.4.4-alpine AS base
 WORKDIR /app
 
 # ─── Dependencies ────────────────────────────────────────────
@@ -14,23 +14,28 @@ COPY packages/sdk-vue/package.json ./packages/sdk-vue/
 COPY packages/sdk-vue/playground/package.json ./packages/sdk-vue/playground/
 COPY packages/sdk-core/package.json ./packages/sdk-core/
 
-RUN bun install --frozen-lockfile
+# Optional build-only corporate/cloud CA. Verification remains enabled.
+RUN --mount=type=secret,id=build_ca \
+    if [ -s /run/secrets/build_ca ]; then \
+      export NODE_EXTRA_CA_CERTS=/run/secrets/build_ca; \
+    fi; \
+    HUSKY=0 bun install --frozen-lockfile
 
 # ─── Build server ─────────────────────────────────────────────
 FROM deps AS build-server
 COPY packages/types ./packages/types
 COPY apps/server ./apps/server
-RUN cd apps/server && bun build src/index.ts scripts/migrate.ts scripts/seed-admin.ts --outdir dist --target bun
+RUN cd packages/types && bun run build
+RUN cd apps/server && bun build src/index.ts src/worker.ts scripts/migrate.ts scripts/seed-admin.ts --outdir dist --target bun --entry-naming '[name].[ext]'
 
 # ─── Production image ─────────────────────────────────────────
-FROM oven/bun:1-alpine AS runner
+FROM oven/bun:1.4.4-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
 COPY --from=build-server /app/apps/server/dist ./dist
 COPY --from=build-server /app/apps/server/drizzle ./drizzle
-COPY --from=deps         /app/node_modules ./node_modules
 COPY --from=build-server /app/apps/server/docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN chmod +x docker-entrypoint.sh

@@ -1,0 +1,40 @@
+# Add to a production compose file to build this fork and run its worker:
+# docker compose --env-file .env -f infra/docker-compose.yml \
+#   -f infra/docker-compose.directory.yml up -d --build
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: apps/server/Dockerfile
+    environment:
+      BASE_URL: ${BASE_URL:?Set BASE_URL to the public application origin}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      DNS_OVER_HTTPS_URL: ${DNS_OVER_HTTPS_URL:-}
+      TRUSTED_PROXY_IPS: ${TRUSTED_PROXY_IPS:-}
+      MAX_ACTIVE_MONITORS: ${MAX_ACTIVE_MONITORS:-100}
+      SEED_ADMIN_ON_START: ${SEED_ADMIN_ON_START:-false}
+  admin:
+    build:
+      context: ..
+      dockerfile: apps/admin/Dockerfile
+  worker:
+    build:
+      context: ..
+      dockerfile: apps/server/Dockerfile
+    restart: unless-stopped
+    command: ["bun", "dist/worker.js"]
+    env_file: ../.env
+    environment:
+      NODE_ENV: production
+      BASE_URL: ${BASE_URL:?Set BASE_URL to the public application origin}
+      DATABASE_URL: ${DATABASE_URL}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+    depends_on:
+      - server
+      - db
+    networks:
+      - reviewskits

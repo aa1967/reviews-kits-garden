@@ -2,12 +2,16 @@ import { drizzle } from 'drizzle-orm/bun-sql';
 import * as schema from '../../src/infrastructure/database/schema';
 import { sql } from 'drizzle-orm';
 
-// Build DATABASE_URL from environment variables
-const POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';
-const POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || 'your_secure_password';
-const POSTGRES_DB = process.env.POSTGRES_DB || 'reviewskits';
-const url = `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:5433/${POSTGRES_DB}`;
-process.env.DATABASE_URL = url;
+// Destructive fixtures are allowed only in an explicitly named test database.
+// Use the repository runner, which creates a disposable database for each run.
+const url = process.env.DATABASE_URL;
+if (!url || process.env.NODE_ENV !== 'test') {
+  throw new Error('Integration tests require an isolated test database. Run bun run test.');
+}
+const databaseName = decodeURIComponent(new URL(url).pathname.slice(1));
+if (!/(^test$|^test_|_test(?:_|$))/.test(databaseName)) {
+  throw new Error('Refusing to truncate an application database. Run bun run test.');
+}
 
 // In Bun.sql, we pass the URL directly to drizzle
 export const testDb = drizzle(url, { schema });

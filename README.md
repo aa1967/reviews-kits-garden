@@ -150,6 +150,13 @@ A managed hosted version is on the way for those who prefer not to manage infras
 
 ## 👨‍💻 Local Development
 
+This fork also includes an **independent public review directory** with domain
+verification, platform-controlled moderation, account-investigation tools,
+website monitoring and portable review/score widgets. See
+[the directory guide](docs/public-directory.md) for workflows, the comparison
+with ReviewsUp, configuration, and deployment. Build this fork with the directory
+Compose overlay; the upstream image commands above do not contain these changes.
+
 ### Prerequisites
 - [Bun](https://bun.sh/)
 - [Docker](https://www.docker.com/) (for Postgres, Redis, Minio)
