@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, boolean, jsonb, integer, index, unique, date, check } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, text, timestamp, boolean, jsonb, integer, index, unique, uniqueIndex, numeric, date, check } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 
 // ═══════════════════════════════════════
@@ -356,3 +356,65 @@ export const directoryWorkers = pgTable('directory_workers', {
   name: text('name').primaryKey(),
   lastSeenAt: timestamp('last_seen_at').notNull().defaultNow(),
 });
+
+// Donation addresses are public receiving addresses only; never wallet keys.
+export const donationWallets = pgTable('donation_wallets', {
+  currency: text('currency', { enum: ['BTC', 'LTC', 'XMR'] }).primaryKey(),
+  address: text('address').notNull(),
+  enabled: boolean('enabled').notNull().default(false),
+  updatedBy: uuid('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => ({
+  supported: check('donation_wallets_currency', sql`${t.currency} IN ('BTC', 'LTC', 'XMR')`),
+  configured: check('donation_wallets_configured', sql`NOT ${t.enabled} OR length(${t.address}) > 0`),
+}));
+
+export const donationSettings = pgTable('donation_settings', {
+  id: text('id').primaryKey().default('global'),
+  leaderboardEnabled: boolean('leaderboard_enabled').notNull().default(false),
+  updatedBy: uuid('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => ({ singleton: check('donation_settings_singleton', sql`${t.id} = 'global'`) }));
+
+export const donationSupporters = pgTable('donation_supporters', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  nameMode: text('name_mode', { enum: ['account', 'pseudonym'] }).notNull().default('account'),
+  pseudonym: text('pseudonym'),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => ({
+  mode: check('donation_supporters_name_mode', sql`${t.nameMode} IN ('account', 'pseudonym')`),
+  named: check('donation_supporters_pseudonym_required', sql`${t.nameMode} <> 'pseudonym' OR ${t.pseudonym} IS NOT NULL`),
+  pseudonymShape: check('donation_supporters_pseudonym_shape', sql`${t.pseudonym} IS NULL OR
+    (length(${t.pseudonym}) BETWEEN 3 AND 40 AND ${t.pseudonym} ~ '^[A-Za-z0-9][A-Za-z0-9 ._-]*[A-Za-z0-9]$')`),
+  uniqueName: uniqueIndex('donation_supporters_pseudonym_unique').on(sql`lower(${t.pseudonym})`).where(sql`${t.pseudonym} IS NOT NULL`),
+}));
+
+export const donations = pgTable('donations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'set null' }),
+  currency: text('currency', { enum: ['BTC', 'LTC', 'XMR'] }).notNull(),
+  walletAddress: text('wallet_address').notNull(),
+  // PostgreSQL numeric returns strings, preserving every satoshi / piconero.
+  declaredAtomic: numeric('declared_atomic', { precision: 30, scale: 0 }).notNull(),
+  confirmedAtomic: numeric('confirmed_atomic', { precision: 30, scale: 0 }),
+  publicCredit: boolean('public_credit').notNull().default(false),
+  status: text('status', { enum: ['pending', 'confirmed', 'rejected', 'reversed'] }).notNull().default('pending'),
+  transactionId: text('transaction_id'),
+  donorNote: text('donor_note').notNull().default(''),
+  decisionReason: text('decision_reason'),
+  reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+  receivedAt: timestamp('received_at'),
+  confirmedAt: timestamp('confirmed_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, (t) => ({
+  currencyCheck: check('donations_currency', sql`${t.currency} IN ('BTC', 'LTC', 'XMR')`),
+  statusCheck: check('donations_status', sql`${t.status} IN ('pending', 'confirmed', 'rejected', 'reversed')`),
+  positive: check('donations_positive', sql`${t.declaredAtomic} > 0 AND (${t.confirmedAtomic} IS NULL OR ${t.confirmedAtomic} > 0)`),
+  verified: check('donations_verified', sql`${t.status} NOT IN ('confirmed', 'reversed') OR
+    (${t.confirmedAtomic} IS NOT NULL AND ${t.receivedAt} IS NOT NULL AND ${t.confirmedAt} IS NOT NULL AND ${t.transactionId} IS NOT NULL)`),
+  txFormat: check('donations_tx_format', sql`${t.transactionId} IS NULL OR ${t.transactionId} ~ '^[a-f0-9]{64}$'`),
+  oneReceipt: uniqueIndex('donations_confirmed_transaction').on(t.currency, t.transactionId).where(sql`${t.status} = 'confirmed'`),
+  history: index('donations_user_history').on(t.userId, t.createdAt),
+  totals: index('donations_confirmed_totals').on(t.currency, t.status, t.receivedAt),
+}));

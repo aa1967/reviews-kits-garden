@@ -31,9 +31,11 @@
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
     "@hono/zod-openapi": "^1.2.2",
+    "@noble/hashes": "2.4.0",
     "@react-email/components": "^1.0.11",
     "@react-email/render": "^2.0.5",
     "@reviewskits/types": "workspace:*",
+    "@scure/base": "2.4.0",
     "better-auth": "^1.5.5",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.12.8",

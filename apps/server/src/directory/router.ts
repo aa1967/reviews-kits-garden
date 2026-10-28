@@ -14,6 +14,7 @@ import { checkClaim } from './claims';
 import { mailConfigured, publicBaseUrl } from './mail';
 import { monitorSummary } from './monitoring';
 import { renderWidget, embedLoader } from './widgets';
+import { registerDonationRoutes } from '../donations/router';
 
 export const directoryRouter = new Hono();
 type User = typeof s.users.$inferSelect;
@@ -43,8 +44,13 @@ directoryRouter.use('*', async (c, next) => {
 });
 directoryRouter.onError((error, c) => {
   if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
-  if ((error as { code?: string }).code === '23505' || (error as { cause?: { code?: string } }).cause?.code === '23505') {
-    return c.json({ error: 'This record already exists. Refresh and try again.' }, 409);
+  let cause: unknown = error;
+  for (let depth = 0; depth < 5 && cause && typeof cause === 'object'; depth++) {
+    const detail = cause as { code?: string; errno?: string | number; cause?: unknown };
+    if (detail.code === '23505' || String(detail.errno) === '23505') {
+      return c.json({ error: 'This record already exists. Refresh and try again.' }, 409);
+    }
+    cause = detail.cause;
   }
   console.error('[Directory]', error.name);
   return c.json({ error: 'The operation could not be completed. Please try again.' }, 500);
@@ -86,6 +92,7 @@ async function rate(actorId: string, scope: string, max: number) {
     } }).returning();
   if (row!.count > max) fail(429, 'Hourly limit reached. Please try again later.');
 }
+registerDonationRoutes(directoryRouter, { user, staff, rate, body });
 function publicBusiness(site: typeof s.directoryBusinesses.$inferSelect) {
   return { id: site.id, domain: site.domain, name: site.name, description: site.description, category: site.category, claimed: !!site.ownerId, createdAt: site.createdAt };
 }

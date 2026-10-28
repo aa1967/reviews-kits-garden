@@ -50,6 +50,20 @@
       "when": 1792987331110,
       "tag": "0006_sudden_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793149938045,
+      "tag": "0007_donations",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793150548810,
+      "tag": "0008_donation_preferences",
+      "breakpoints": true
     }
   ]
 }

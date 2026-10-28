@@ -10,7 +10,7 @@ const errorMessage = (error: unknown) => error instanceof Error ? error.message 
 const categories = ['Software', 'Shopping', 'Professional services', 'Education', 'Travel', 'Health', 'Other'];
 const button = 'dir-button';
 
-function Shell({ children }: { children: ReactNode }) {
+export function Shell({ children }: { children: ReactNode }) {
   const { data: session } = authClient.useSession();
   const account = useDirectory<Account>(session ? '/me' : null);
   return <div className="directory">
@@ -18,6 +18,7 @@ function Shell({ children }: { children: ReactNode }) {
       <Link className="dir-brand" to="/">reviews<span>kits.</span></Link>
       <div className="dir-nav-links">
         <Link to="/">Explore businesses</Link>
+        <Link to="/donate">Donate</Link>
         {session ? <>
           <Link to="/dashboard">My dashboard</Link>
           {account.data?.user.isSystemAdmin && <Link to="/moderation"><ShieldCheck size={13} style={{ display: 'inline' }} /> Moderation</Link>}

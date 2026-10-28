@@ -39,6 +39,8 @@ Production startup no longer silently seeds an account with a default password. 
 | /business/:domain/manage | Business profile, monitoring, replies, team and widgets |
 | /moderation | Staff review queues, evidence, reports/appeals, listings and audit trail |
 | /principles | Review, verification, privacy and monitoring disclosures |
+| /donate | BTC, LTC and XMR donations, private receipts and optional supporter rankings |
+| /donations/manage | Staff receiving wallets, optional leaderboard setting and payment verification |
 | /workspace | Original curated-testimonial workspace |
 
 The API prefix is /api/v1/directory. Public endpoints include businesses, businesses/:domain, scores/:domain, widgets/:domain and embed.js. Account endpoints include me and verification-email. Claims, review submissions, edits, reports, replies, invitations and business settings require authenticated server-side authorization. Moderation endpoints require a current database-backed administrator role.
@@ -88,6 +90,14 @@ The business dashboard provides a live preview and copyable iframe or JavaScript
 Widgets always link to the full business page. They disclose that overall scores include every published rating, escape all user text, have a restrictive content security policy, and expose no private key or reviewer email. Published updates may take up to 60 seconds to appear because of public caching. Removing publication automatically removes the review from widgets.
 
 For custom server integrations use GET /api/v1/directory/scores/:domain. Generic widget endpoints do not require private API keys.
+
+## Donations
+
+The [donation guide](donations.md) covers anonymous BTC/LTC/XMR contributions,
+manual admin wallet verification, and an optional public leaderboard that is off
+by default. Donors may save a persistent pseudonym independent of their review
+display name and opt into public credit per donation. Donations do not influence
+review scores, ownership, publication, or moderation permissions.
 
 ## Development
 

@@ -11,6 +11,7 @@ import IntegrationsPage from './pages/IntegrationsPage'
 import SecurityPage from './pages/SecurityPage'
 import NotificationsPage from './pages/NotificationsPage'
 import { BusinessDirectoryPage, DirectoryAuth, DirectoryDashboard, DirectoryHome, DirectoryModeration, DirectoryPrinciples, ManageDirectoryBusiness } from './pages/DirectoryPages'
+import { DonationPage, ManageDonationsPage } from './pages/DonationPages'
 import './App.css'
 
 // Apply saved theme before first render to avoid flash
@@ -33,6 +34,8 @@ function App() {
         <Route path="/" element={<DirectoryHome />} />
         <Route path="/business/:domain" element={<BusinessDirectoryPage />} />
         <Route path="/principles" element={<DirectoryPrinciples />} />
+        <Route path="/donate" element={<DonationPage />} />
+        <Route path="/donations" element={<Navigate to="/donate" replace />} />
 
         {/* Public Form Route */}
         <Route path="/f/:slug" element={<PublicFormPage />} />
@@ -41,6 +44,7 @@ function App() {
         <Route element={<AuthGuard />}>
           <Route path="/dashboard" element={<DirectoryDashboard />} />
           <Route path="/moderation" element={<DirectoryModeration />} />
+          <Route path="/donations/manage" element={<ManageDonationsPage />} />
           <Route path="/business/:domain/manage" element={<ManageDirectoryBusiness />} />
           <Route path="/workspace" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
