@@ -41,7 +41,7 @@ export function NotificationPanel({ isOpen, notifications, onMarkRead, onMarkAll
         {unread.length > 0 && (
           <button
             onClick={onMarkAllRead}
-            className="flex items-center gap-1.5 text-xs text-(--v3-muted2) hover:text-(--v3-teal) transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 text-xs text-(--v3-muted2) hover:text-(--v3-accent) transition-colors cursor-pointer"
           >
             <CheckCheck size={14} />
             Mark all read
@@ -65,7 +65,7 @@ export function NotificationPanel({ isOpen, notifications, onMarkRead, onMarkAll
               }}
               className="flex items-start gap-3 px-5 py-3.5 cursor-pointer border-b border-(--v3-border)/50 hover:bg-(--v3-bg3) transition-colors bg-(--v3-bg3)/50"
             >
-              <div className="mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-(--v3-teal)/10 text-(--v3-teal)">
+              <div className="mt-0.5 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-(--v3-teal)/10 text-(--v3-accent)">
                 <MessageSquareText size={15} />
               </div>
               <div className="flex-1 min-w-0">
@@ -89,7 +89,7 @@ export function NotificationPanel({ isOpen, notifications, onMarkRead, onMarkAll
       {showViewAll && (
         <Link
           to="/notifications"
-          className="block text-center py-3 text-xs font-semibold text-(--v3-teal) hover:bg-(--v3-bg3) transition-colors border-t border-(--v3-border)"
+          className="block text-center py-3 text-xs font-semibold text-(--v3-accent) hover:bg-(--v3-bg3) transition-colors border-t border-(--v3-border)"
         >
           View all notifications
         </Link>

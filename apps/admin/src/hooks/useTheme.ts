@@ -1,23 +1,8 @@
-import { useState, useEffect } from 'react'
-
-type Theme = 'dark' | 'light'
+import { useContext } from 'react';
+import { ThemeContext } from './theme-context';
 
 export function useTheme() {
-  const [theme, setTheme] = useState<Theme>(() => {
-    return (localStorage.getItem('rk-theme') as Theme) || 'dark'
-  })
-
-  useEffect(() => {
-    const root = document.documentElement
-    if (theme === 'light') {
-      root.classList.add('light')
-    } else {
-      root.classList.remove('light')
-    }
-    localStorage.setItem('rk-theme', theme)
-  }, [theme])
-
-  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark')
-
-  return { theme, toggleTheme }
+  const value = useContext(ThemeContext);
+  if (!value) throw new Error('ThemeProvider is required.');
+  return value;
 }

@@ -12,13 +12,8 @@ import SecurityPage from './pages/SecurityPage'
 import NotificationsPage from './pages/NotificationsPage'
 import { BusinessDirectoryPage, DirectoryAuth, DirectoryDashboard, DirectoryHome, DirectoryModeration, DirectoryPrinciples, ManageDirectoryBusiness } from './pages/DirectoryPages'
 import { DonationPage, ManageDonationsPage } from './pages/DonationPages'
+import { SiteSettingsPage } from './pages/AdministrationPages'
 import './App.css'
-
-// Apply saved theme before first render to avoid flash
-const savedTheme = localStorage.getItem('rk-theme')
-if (savedTheme === 'light') {
-  document.documentElement.classList.add('light')
-}
 
 function App() {
   const location = useLocation()
@@ -44,6 +39,7 @@ function App() {
         <Route element={<AuthGuard />}>
           <Route path="/dashboard" element={<DirectoryDashboard />} />
           <Route path="/moderation" element={<DirectoryModeration />} />
+          <Route path="/site-settings" element={<SiteSettingsPage />} />
           <Route path="/donations/manage" element={<ManageDonationsPage />} />
           <Route path="/business/:domain/manage" element={<ManageDirectoryBusiness />} />
           <Route path="/workspace" element={<DashboardPage />} />

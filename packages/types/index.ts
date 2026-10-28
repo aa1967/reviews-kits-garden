@@ -1,6 +1,7 @@
 // ─── Back-end model types ─────────────────────────────────────────────────────
 
 export * from './donations.js';
+export * from './administration.js';
 
 export type TestimonialStatus = 'pending' | 'approved' | 'rejected';
 export type TestimonialSource = 'form' | 'import' | 'api';

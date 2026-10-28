@@ -16,7 +16,7 @@ export const StatCard = ({ icon, label, value, delta, colorClass }: StatCardProp
         {icon}
       </div>
       {delta && (
-        <span className="text-[11px] font-bold tracking-tight text-(--v3-teal) bg-(--v3-teal-dim) px-2 py-0.5 rounded-full border border-(--v3-teal)/20">
+        <span className="text-[11px] font-bold tracking-tight text-(--v3-accent) bg-(--v3-teal-dim) px-2 py-0.5 rounded-full border border-(--v3-teal)/20">
           {delta}
         </span>
       )}

@@ -97,46 +97,50 @@
 
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* V3 DASHBOARD COLORS - Dark Mode (default) */
-  --v3-bg: #0A0A0F;
-  --v3-bg2: #111118;
-  --v3-bg3: #16161F;
-  --v3-teal: #0D9E75;
-  --v3-teal-dim: rgba(13, 158, 117, 0.12);
-  --v3-teal-glow: rgba(13, 158, 117, 0.25);
-  --v3-border: rgba(255, 255, 255, 0.07);
-  --v3-border2: rgba(255, 255, 255, 0.12);
-  --v3-text: #F2F0EB;
-  --v3-muted: #6E6C7A;
-  --v3-muted2: #9896A4;
-  --v3-red: #E05454;
-  --v3-red-dim: rgba(224, 84, 84, 0.1);
-  --v3-yellow: #F4B730;
+  /* Dark ruby red is the default. Existing component token names stay compatible. */
+  --v3-bg: #140b10;
+  --v3-bg2: #211219;
+  --v3-bg3: #321d27;
+  --v3-teal: #ba2450;
+  --v3-accent: #ff8fab;
+  --v3-teal-dim: rgba(219, 61, 104, 0.13);
+  --v3-teal-glow: rgba(219, 61, 104, 0.26);
+  --v3-border: rgba(255, 178, 202, 0.12);
+  --v3-border2: rgba(255, 178, 202, 0.24);
+  --v3-text: #f9edf1;
+  --v3-muted: #bca5ae;
+  --v3-muted2: #c9b2bd;
+  --v3-red: #ff9ca9;
+  --v3-red-dim: rgba(255, 124, 147, 0.12);
+  --v3-yellow: #f1d08d;
+  --v3-success: #72dfb3;
 
   /* Avatar & Misc */
-  --avatar-teal-from: #0D9E75;
-  --avatar-teal-to: #0a6e52;
-  --code-bg-new: #0D0D14;
+  --avatar-teal-from: #ba2450;
+  --avatar-teal-to: #741b38;
+  --code-bg-new: #1b0e15;
 }
 
 /* ─── LIGHT MODE ─────────────────────────────────────────────────────────── */
 .light {
   /* V3 DASHBOARD COLORS - Light Mode */
-  --v3-bg: #F0F2F9;
+  --v3-bg: #fff5f7;
   --v3-bg2: #FFFFFF;
-  --v3-bg3: #E5E8F4;
-  --v3-teal: #0D9E75;
-  --v3-teal-dim: rgba(13, 158, 117, 0.10);
-  --v3-teal-glow: rgba(13, 158, 117, 0.20);
-  --v3-border: rgba(15, 23, 60, 0.09);
-  --v3-border2: rgba(15, 23, 60, 0.16);
-  --v3-text: #111827;
-  --v3-muted: #A0A5BC;
-  --v3-muted2: #6B7280;
-  --v3-red: #DC2626;
-  --v3-red-dim: rgba(220, 38, 38, 0.08);
-  --v3-yellow: #D97706;
-  --code-bg-new: #F4F6FC;
+  --v3-bg3: #f6e5ec;
+  --v3-teal: #a71949;
+  --v3-accent: #9c1642;
+  --v3-teal-dim: rgba(167, 25, 73, 0.07);
+  --v3-teal-glow: rgba(167, 25, 73, 0.18);
+  --v3-border: rgba(94, 29, 52, 0.13);
+  --v3-border2: rgba(94, 29, 52, 0.25);
+  --v3-text: #30121d;
+  --v3-muted: #7a5664;
+  --v3-muted2: #755360;
+  --v3-red: #ad1436;
+  --v3-red-dim: rgba(173, 20, 54, 0.07);
+  --v3-yellow: #765009;
+  --v3-success: #176347;
+  --code-bg-new: #fbeef3;
 }
 
 /* Light mode body */
@@ -226,7 +230,7 @@ body::after {
 
 body {
   margin: 0;
-  background-color: black;
+  background-color: var(--v3-bg);
 }
 
 h1,
@@ -370,3 +374,39 @@ code {
     @apply absolute left-4 top-0 bottom-0 w-px bg-zinc-800/30;
   }
 }
+
+/* Keep native controls, shared UI components and workspace pages in the same palette. */
+:root, :root.dark, :root.light {
+  color-scheme: dark;
+  --text: var(--v3-muted2);
+  --text-h: var(--v3-text);
+  --bg: var(--v3-bg);
+  --code-bg: var(--code-bg-new);
+  --background: var(--v3-bg);
+  --foreground: var(--v3-text);
+  --card: var(--v3-bg2);
+  --card-foreground: var(--v3-text);
+  --popover: var(--v3-bg2);
+  --popover-foreground: var(--v3-text);
+  --primary: var(--v3-teal);
+  --primary-foreground: #fff;
+  --secondary: var(--v3-bg3);
+  --secondary-foreground: var(--v3-text);
+  --muted: var(--v3-bg3);
+  --muted-foreground: var(--v3-muted2);
+  --accent: var(--v3-bg3);
+  --accent-foreground: var(--v3-text);
+  --destructive: var(--v3-red);
+  --border: var(--v3-border2);
+  --input: var(--v3-border2);
+  --ring: var(--v3-accent);
+  --sidebar: var(--v3-bg2);
+  --sidebar-foreground: var(--v3-text);
+  --sidebar-primary: var(--v3-teal);
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: var(--v3-bg3);
+  --sidebar-accent-foreground: var(--v3-text);
+  --sidebar-border: var(--v3-border);
+  --sidebar-ring: var(--v3-accent);
+}
+:root.light { color-scheme: light; }

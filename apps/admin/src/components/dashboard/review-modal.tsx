@@ -41,7 +41,7 @@ export function ReviewModal({
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-5 border-b border-(--v3-border)">
           <div>
-            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-(--v3-teal) mb-1 block">
+            <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-(--v3-accent) mb-1 block">
               // review details
             </span>
             <h2 className="text-xl font-bold tracking-tight text-(--v3-text)">
@@ -86,7 +86,7 @@ export function ReviewModal({
 
           {/* Content */}
           <div className="space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-(--v3-teal)">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-(--v3-accent)">
                // content
             </span>
             <div className="bg-(--v3-bg) border border-(--v3-border) rounded-xl p-6 relative">
@@ -100,7 +100,7 @@ export function ReviewModal({
           <div className="pt-4 flex flex-wrap gap-3">
             <button 
               onClick={() => { onStatusUpdate(review.id, 'approved'); onClose(); }}
-              className="flex-1 min-w-35 flex items-center justify-center gap-2 bg-(--v3-teal)/10 text-(--v3-teal) border border-(--v3-teal)/20 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-(--v3-teal)/20 hover:border-(--v3-teal)/40 transition-all"
+              className="flex-1 min-w-35 flex items-center justify-center gap-2 bg-(--v3-teal)/10 text-(--v3-accent) border border-(--v3-teal)/20 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-(--v3-teal)/20 hover:border-(--v3-teal)/40 transition-all"
             >
               <Check size={14} /> Approve
             </button>

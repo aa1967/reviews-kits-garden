@@ -15,10 +15,11 @@ import { mailConfigured, publicBaseUrl } from './mail';
 import { monitorSummary } from './monitoring';
 import { renderWidget, embedLoader } from './widgets';
 import { registerDonationRoutes } from '../donations/router';
+import { businessCategories, registerAdministrationRoutes, requireOpenReviews } from './administration';
 
 export const directoryRouter = new Hono();
 type User = typeof s.users.$inferSelect;
-const categories = ['Software', 'Shopping', 'Professional services', 'Education', 'Travel', 'Health', 'Other'] as const;
+const categories = businessCategories;
 const idSchema = z.string().uuid();
 const reviewSchema = z.object({
   title: z.string().trim().min(3).max(160), content: z.string().trim().min(20).max(5000),
@@ -84,6 +85,14 @@ async function access(actor: User, businessId: string, ownerOnly = false) {
   if (!member || ownerOnly) fail(403, 'You do not have permission to manage this business.');
   return site;
 }
+async function lockedAccess(tx: Parameters<Parameters<typeof db.transaction>[0]>[0], actor: User, businessId: string, ownerOnly = false) {
+  const [site] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, businessId)).for('update');
+  if (!site) fail(404, 'Business not found.');
+  if (actor.isSystemAdmin || site!.ownerId === actor.id) return site!;
+  const [member] = await tx.select().from(s.directoryMembers).where(and(eq(s.directoryMembers.businessId, businessId), eq(s.directoryMembers.userId, actor.id)));
+  if (!member || ownerOnly) fail(403, 'You do not have permission to manage this business.');
+  return site!;
+}
 async function rate(actorId: string, scope: string, max: number) {
   const [row] = await db.insert(s.rateLimits).values({ key: 'directory:' + scope + ':' + actorId, count: 1, resetAt: new Date(Date.now() + 3600000) })
     .onConflictDoUpdate({ target: s.rateLimits.key, set: {
@@ -93,8 +102,9 @@ async function rate(actorId: string, scope: string, max: number) {
   if (row!.count > max) fail(429, 'Hourly limit reached. Please try again later.');
 }
 registerDonationRoutes(directoryRouter, { user, staff, rate, body });
+registerAdministrationRoutes(directoryRouter, { staff, body, publicBusiness });
 function publicBusiness(site: typeof s.directoryBusinesses.$inferSelect) {
-  return { id: site.id, domain: site.domain, name: site.name, description: site.description, category: site.category, claimed: !!site.ownerId, createdAt: site.createdAt };
+  return { id: site.id, domain: site.domain, name: site.name, description: site.description, category: site.category, claimed: !!site.ownerId, createdAt: site.createdAt, permanentlyClosed: site.permanentlyClosed, reviewsClosed: site.reviewsClosed, updatedAt: site.updatedAt };
 }
 export async function businessScore(businessId: string) {
   const rows = await db.select({ rating: s.directoryReviews.rating, count: count() }).from(s.directoryReviews)
@@ -154,6 +164,7 @@ directoryRouter.get('/me', async (c) => {
   const reviews = await db.select({
     id: s.directoryReviews.id, domain: s.directoryBusinesses.domain, title: s.directoryReviews.title, content: s.directoryReviews.content,
     rating: s.directoryReviews.rating, status: s.directoryReviews.status, moderationReason: s.directoryReviews.moderationReason, updatedAt: s.directoryReviews.updatedAt,
+    reviewsClosed: s.directoryBusinesses.reviewsClosed, listed: s.directoryBusinesses.listed,
   }).from(s.directoryReviews).innerJoin(s.directoryBusinesses, eq(s.directoryReviews.businessId, s.directoryBusinesses.id)).where(eq(s.directoryReviews.reviewerId, actor.id)).orderBy(desc(s.directoryReviews.createdAt)).limit(100);
   const alerts = await db.select().from(s.notifications).where(and(eq(s.notifications.userId, actor.id), ilike(s.notifications.type, 'directory.%'))).orderBy(desc(s.notifications.createdAt)).limit(30);
   return c.json({ user: { id: actor.id, name: actor.name, email: actor.email, emailVerified: actor.emailVerified, isSystemAdmin: actor.isSystemAdmin }, businesses: sites.map((b) => ({ ...publicBusiness(b), isOwner: b.ownerId === actor.id })), claims, reviews, alerts, emailConfigured: mailConfigured() });
@@ -167,12 +178,20 @@ directoryRouter.post('/verification-email', async (c) => {
 directoryRouter.post('/businesses/:id/claims', async (c) => {
   const actor = await user(c, true); await rate(actor.id, 'claim', 10);
   const site = await businessById(c.req.param('id'));
+  if (!site.listed || site.permanentlyClosed) fail(403, 'This listing is unavailable for new ownership claims. Contact platform support.');
   if (site.ownerId) fail(409, 'This business is already claimed. Ask its owner for an invitation or contact platform support.');
   const input = await body(c, z.object({ method: z.enum(['dns', 'file']) }));
-  const [claim] = await db.insert(s.directoryClaims).values({
-    businessId: site.id, userId: actor.id, method: input.method, token: 'reviewskits-verification=' + randomBytes(32).toString('hex'),
-    expiresAt: new Date(Date.now() + 86400000),
-  }).returning();
+  const claim = await db.transaction(async (tx) => {
+    const [current] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, site.id)).for('share');
+    if (!current) fail(404, 'Business not found.');
+    if (!current!.listed || current!.permanentlyClosed) fail(403, 'This listing is unavailable for new ownership claims. Contact platform support.');
+    if (current!.ownerId) fail(409, 'This business is already claimed. Contact platform support.');
+    const [created] = await tx.insert(s.directoryClaims).values({
+      businessId: site.id, userId: actor.id, method: input.method, token: 'reviewskits-verification=' + randomBytes(32).toString('hex'),
+      expiresAt: new Date(Date.now() + 86400000),
+    }).returning();
+    return created!;
+  });
   return c.json({ claim: claim!, domain: site.domain }, 201);
 });
 directoryRouter.post('/claims/:id/check', async (c) => {
@@ -192,22 +211,32 @@ directoryRouter.get('/managed/:id', async (c) => {
 directoryRouter.patch('/managed/:id', async (c) => {
   const actor = await user(c, true); const site = await access(actor, c.req.param('id'));
   const input = await body(c, z.object({ name: z.string().trim().min(2).max(120), description: z.string().trim().max(2000), category: z.enum(categories) }));
-  await db.update(s.directoryBusinesses).set(input).where(eq(s.directoryBusinesses.id, site.id));
+  await db.transaction(async (tx) => {
+    await lockedAccess(tx, actor, site.id);
+    await tx.update(s.directoryBusinesses).set({ ...input, updatedAt: sql`greatest(now(), ${s.directoryBusinesses.updatedAt} + interval '1 millisecond')` }).where(eq(s.directoryBusinesses.id, site.id));
+  });
   return c.json({ success: true });
 });
 directoryRouter.post('/managed/:id/invites', async (c) => {
   const actor = await user(c, true); const site = await access(actor, c.req.param('id'), true); await rate(actor.id, 'invite', 20);
   const input = await body(c, z.object({ email: z.string().email().max(254) }));
   const token = randomBytes(32).toString('hex');
-  await db.insert(s.directoryInvites).values({ businessId: site.id, email: input.email.toLowerCase(), tokenHash: hash(token), expiresAt: new Date(Date.now() + 7 * 86400000) });
   const link = publicBaseUrl() + '/dashboard?invite=' + token;
-  if (mailConfigured()) await db.insert(s.directoryMail).values({ to: input.email, subject: 'Invitation to manage ' + site.domain, body: 'Sign in with this email address, then accept your invitation: ' + link });
-  await db.insert(s.directoryAudit).values({ actorId: actor.id, action: 'member.invited', targetId: site.id, note: 'Team invitation created' });
+  await db.transaction(async (tx) => {
+    await lockedAccess(tx, actor, site.id, true);
+    await tx.insert(s.directoryInvites).values({ businessId: site.id, email: input.email.toLowerCase(), tokenHash: hash(token), expiresAt: new Date(Date.now() + 7 * 86400000) });
+    if (mailConfigured()) await tx.insert(s.directoryMail).values({ to: input.email, subject: 'Invitation to manage ' + site.domain, body: 'Sign in with this email address, then accept your invitation: ' + link });
+    await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'member.invited', targetId: site.id, note: 'Team invitation created' });
+  });
   return c.json({ link, emailQueued: mailConfigured() }, 201);
 });
 directoryRouter.post('/invites/accept', async (c) => {
   const actor = await user(c, true); const input = await body(c, z.object({ token: z.string().regex(/^[a-f0-9]{64}$/) }));
   await db.transaction(async (tx) => {
+    const [candidate] = await tx.select().from(s.directoryInvites).where(eq(s.directoryInvites.tokenHash, hash(input.token)));
+    if (!candidate) fail(403, 'Invitation expired, already used, or belongs to another email address.');
+    // Use the same parent-first lock order as staff transfers and deletion.
+    await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, candidate!.businessId)).for('share');
     const [invite] = await tx.select().from(s.directoryInvites).where(eq(s.directoryInvites.tokenHash, hash(input.token))).for('update');
     if (!invite || invite.acceptedAt || invite.expiresAt < new Date() || invite.email !== actor.email.toLowerCase()) fail(403, 'Invitation expired, already used, or belongs to another email address.');
     await tx.insert(s.directoryMembers).values({ businessId: invite!.businessId, userId: actor.id }).onConflictDoNothing();
@@ -221,6 +250,8 @@ directoryRouter.delete('/managed/:id/members/:userId', async (c) => {
   const target = id(c.req.param('userId'));
   if (site.ownerId === target) fail(400, 'Ownership transfers require platform support.');
   await db.transaction(async (tx) => {
+    const current = await lockedAccess(tx, actor, site.id, true);
+    if (current.ownerId === target) fail(400, 'Ownership transfers require platform support.');
     await tx.delete(s.directoryMembers).where(and(eq(s.directoryMembers.businessId, site.id), eq(s.directoryMembers.userId, target)));
     await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'member.removed', targetId: site.id, note: 'Member removed: ' + target });
   });
@@ -253,11 +284,17 @@ async function reviewRisk(c: Context, actor: User, siteId: string, content: stri
 directoryRouter.post('/businesses/:id/reviews', async (c) => {
   const actor = await user(c, true); await rate(actor.id, 'review', 10);
   const site = await businessById(c.req.param('id'));
-  if (!site.listed) fail(403, 'This listing is unavailable.');
+  requireOpenReviews(site);
   const input = await body(c, reviewSchema);
   if (input._honey) return c.json({ success: true, status: 'pending' }, 201);
   const signals = await reviewRisk(c, actor, site.id, input.content);
-  const [review] = await db.insert(s.directoryReviews).values({ businessId: site.id, reviewerId: actor.id, title: input.title, content: input.content, rating: input.rating, ...signals }).returning();
+  const review = await db.transaction(async (tx) => {
+    const [current] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, site.id)).for('share');
+    if (!current) fail(404, 'Business not found.');
+    requireOpenReviews(current!);
+    const [saved] = await tx.insert(s.directoryReviews).values({ businessId: site.id, reviewerId: actor.id, title: input.title, content: input.content, rating: input.rating, ...signals }).returning();
+    return saved!;
+  });
   return c.json({ id: review!.id, status: review!.status }, 201);
 });
 directoryRouter.patch('/reviews/:id', async (c) => {
@@ -265,9 +302,13 @@ directoryRouter.patch('/reviews/:id', async (c) => {
   const reviewId = id(c.req.param('id'));
   const [review] = await db.select().from(s.directoryReviews).where(and(eq(s.directoryReviews.id, reviewId), eq(s.directoryReviews.reviewerId, actor.id)));
   if (!review) fail(404, 'Your review was not found.');
+  requireOpenReviews(await businessById(review!.businessId));
   const input = await body(c, reviewSchema);
   const signals = await reviewRisk(c, actor, review!.businessId, input.content, reviewId);
   await db.transaction(async (tx) => {
+    const [site] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, review!.businessId)).for('share');
+    if (!site) fail(404, 'Business not found.');
+    requireOpenReviews(site!);
     await tx.update(s.directoryReviews).set({ title: input.title, content: input.content, rating: input.rating, ...signals, moderationReason: null, updatedAt: new Date() }).where(eq(s.directoryReviews.id, reviewId));
     await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'review.edited', targetId: reviewId, note: 'Edited review returned to platform moderation' });
   });
@@ -280,6 +321,7 @@ directoryRouter.post('/reviews/:id/reply', async (c) => {
   await access(actor, review!.businessId);
   const input = await body(c, z.object({ reply: z.string().trim().min(2).max(3000) }));
   await db.transaction(async (tx) => {
+    await lockedAccess(tx, actor, review!.businessId);
     await tx.update(s.directoryReviews).set({ reply: input.reply, replyBy: actor.id, replyAt: new Date() }).where(eq(s.directoryReviews.id, review!.id));
     await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'review.replied', targetId: review!.id, note: 'Business response updated' });
   });
@@ -300,6 +342,9 @@ directoryRouter.put('/managed/:id/monitor', async (c) => {
   const input = await body(c, z.object({ enabled: z.boolean(), url: z.string().max(2000), expectedText: z.string().max(200).default('') }));
   try { validateTarget(input.url, site.domain); } catch (error) { return fail(400, (error as Error).message); }
   await db.transaction(async (tx) => {
+    const currentSite = await lockedAccess(tx, actor, site.id, true);
+    if (!currentSite.ownerId) fail(403, 'Verify domain ownership before enabling monitoring.');
+    if (input.enabled && (!currentSite.listed || currentSite.permanentlyClosed)) fail(403, 'Monitoring cannot run for hidden or permanently closed businesses.');
     // Serializes quota checks across simultaneous requests.
     await tx.execute(sql.raw("SELECT pg_advisory_xact_lock(972401)"));
     const [existing] = await tx.select().from(s.directoryMonitors).where(eq(s.directoryMonitors.businessId, site.id)).for('update');
@@ -318,6 +363,7 @@ directoryRouter.put('/managed/:id/monitor', async (c) => {
 
 directoryRouter.get('/moderation', async (c) => {
   await staff(c);
+  c.header('Cache-Control', 'no-store');
   const status = c.req.query('status') ?? 'pending';
   const page = Math.min(100, Math.max(1, Number(c.req.query('page')) || 1));
   const reviewId = c.req.query('reviewId');
@@ -332,8 +378,7 @@ directoryRouter.get('/moderation', async (c) => {
     .where(isNull(s.directoryReports.resolvedAt)).orderBy(desc(s.directoryReports.createdAt)).limit(100);
   const audit = await db.select().from(s.directoryAudit).orderBy(desc(s.directoryAudit.createdAt)).limit(50);
   const workers = await db.select().from(s.directoryWorkers);
-  const businesses = await db.select().from(s.directoryBusinesses).orderBy(desc(s.directoryBusinesses.createdAt)).limit(100);
-  return c.json({ reviews: reviews.map((r) => ({ ...r, review: { ...r.review, networkKey: undefined, fingerprint: undefined } })), counts, reports, audit, businesses: businesses.map((b) => ({ ...publicBusiness(b), listed: b.listed })), workers, workerHealthy: workers.some((w) => Date.now() - w.lastSeenAt.getTime() < 120000), emailConfigured: mailConfigured() });
+  return c.json({ reviews: reviews.map((r) => ({ ...r, review: { ...r.review, networkKey: undefined, fingerprint: undefined } })), counts, reports, audit, workers, workerHealthy: workers.some((w) => Date.now() - w.lastSeenAt.getTime() < 120000), emailConfigured: mailConfigured() });
 });
 directoryRouter.get('/moderation/reviews/:id/evidence', async (c) => {
   await staff(c);
@@ -367,28 +412,6 @@ directoryRouter.post('/moderation/reports/:id', async (c) => {
     if (!report) fail(404, 'Open report not found.');
     await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'report.resolved', targetId: reportId, note: input.resolution });
     await tx.insert(s.notifications).values({ userId: report!.reporterId, type: 'directory.report-resolved', title: 'Your report or appeal was reviewed', body: input.resolution });
-  });
-  return c.json({ success: true });
-});
-directoryRouter.patch('/moderation/businesses/:id', async (c) => {
-  const actor = await staff(c); const site = await businessById(c.req.param('id'));
-  const input = await body(c, z.object({ listed: z.boolean().optional(), ownerEmail: z.string().email().optional(), reason: z.string().trim().min(5).max(2000) }));
-  await db.transaction(async (tx) => {
-    if (input.ownerEmail) {
-      const [newOwner] = await tx.select().from(s.users).where(eq(s.users.email, input.ownerEmail.toLowerCase()));
-      if (!newOwner?.emailVerified) fail(400, 'The new owner must have a verified account.');
-      // Staff-reviewed transfers revoke prior memberships and outstanding invitations.
-      await tx.delete(s.directoryMembers).where(eq(s.directoryMembers.businessId, site.id));
-      await tx.delete(s.directoryInvites).where(eq(s.directoryInvites.businessId, site.id));
-      await tx.update(s.directoryClaims).set({ status: 'conflict' }).where(and(eq(s.directoryClaims.businessId, site.id), eq(s.directoryClaims.status, 'pending')));
-      await tx.insert(s.directoryMembers).values({ businessId: site.id, userId: newOwner!.id });
-      await tx.update(s.directoryBusinesses).set({ ownerId: newOwner!.id, claimedAt: new Date() }).where(eq(s.directoryBusinesses.id, site.id));
-    }
-    if (input.listed !== undefined) {
-      await tx.update(s.directoryBusinesses).set({ listed: input.listed }).where(eq(s.directoryBusinesses.id, site.id));
-      if (!input.listed) await tx.update(s.directoryMonitors).set({ enabled: false }).where(eq(s.directoryMonitors.businessId, site.id));
-    }
-    await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'business.updated-by-staff', targetId: site.id, note: input.reason });
   });
   return c.json({ success: true });
 });

@@ -89,7 +89,7 @@ function MetadataValue({ value }: { value: unknown }) {
             }`}
           >
             <span className="text-(--v3-muted2)">{row}</span>
-            <span className="font-bold text-(--v3-teal) bg-(--v3-teal-dim) px-2.5 py-0.5 rounded-lg text-xs">
+            <span className="font-bold text-(--v3-accent) bg-(--v3-teal-dim) px-2.5 py-0.5 rounded-lg text-xs">
               {col}
             </span>
           </div>
@@ -135,7 +135,7 @@ export default function TestimonialDetailPage() {
       <div className="flex-1 flex flex-col items-center justify-center gap-4 text-(--v3-muted)">
         <MessageSquare size={40} />
         <p className="text-sm">{error?.message || 'Testimonial not found'}</p>
-        <button onClick={() => navigate(-1)} className="text-xs text-(--v3-teal) hover:underline">Go back</button>
+        <button onClick={() => navigate(-1)} className="text-xs text-(--v3-accent) hover:underline">Go back</button>
       </div>
     </div>
   )
@@ -226,7 +226,7 @@ export default function TestimonialDetailPage() {
                         href={testimonial.authorUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[11px] text-(--v3-teal) hover:underline truncate"
+                        className="flex items-center gap-1 text-[11px] text-(--v3-accent) hover:underline truncate"
                       >
                         <Globe size={10} />{testimonial.authorUrl}<ExternalLink size={8} />
                       </a>

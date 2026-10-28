@@ -22,7 +22,7 @@ Reviewskits was retained because it was already installed, built, and tested, an
 - People sign up, confirm their email, add listings, write one review per business, edit their own review, report concerns, and appeal moderation decisions.
 - Business representatives prove control of an exact hostname with an expiring DNS TXT record or HTTPS verification file. A domain-matching email is not accepted as ownership proof.
 - Successful verification automatically grants business access. Owners can edit the business profile, invite colleagues, reply to published reviews, configure monitoring, and get widget code.
-- Platform administrators publish, quarantine, or reject reviews, investigate possible account connections, resolve reports/appeals, hide listings, and adjudicate ownership transfers.
+- Platform administrators publish, quarantine, or reject reviews, investigate possible account connections, resolve reports/appeals, edit business profiles, close reviews, mark permanent closures, hide or delete listings, and adjudicate ownership transfers.
 
 First-account administrator bootstrap is retained, as requested. Sign-up cannot supply its own administrator flag. Start production with a fresh production database so the intended first account becomes its administrator; the cloud development database already contains a generated local development administrator. Its credentials remain in the ignored local .env and are not production credentials.
 
@@ -38,6 +38,7 @@ Production startup no longer silently seeds an account with a default password. 
 | /dashboard | Own reviews, claims, businesses, invitations and notifications |
 | /business/:domain/manage | Business profile, monitoring, replies, team and widgets |
 | /moderation | Staff review queues, evidence, reports/appeals, listings and audit trail |
+| /site-settings | Staff default ruby theme settings and links to donation settings |
 | /principles | Review, verification, privacy and monitoring disclosures |
 | /donate | BTC, LTC and XMR donations, private receipts and optional supporter rankings |
 | /donations/manage | Staff receiving wallets, optional leaderboard setting and payment verification |
@@ -48,6 +49,12 @@ The API prefix is /api/v1/directory. Public endpoints include businesses, busine
 The original forms, testimonial tables, SDK endpoints and workspace are retained. Their owner-curated content is separate from directory_reviews and never contributes to the independent directory's score or widgets.
 
 ## Moderation and evidence
+
+See [business administration and site themes](administration.md) for business
+editing, closure, deletion, review closure and the dark/light ruby appearance.
+Closed reviews retain published content and scores while blocking new submissions
+and author edits. Permanent business closure also pauses monitoring. These controls
+belong to platform administrators.
 
 New and edited reviews always require platform moderation. Owners can respond and report a review but cannot publish or remove directory reviews. All published ratings, positive and negative, contribute to the overall score. Staff decisions require an explanation, check the review revision to prevent stale approvals, and create an audit record and author notification.
 

@@ -101,7 +101,7 @@ export default function DashboardPage() {
 
       <main className="max-w-285 mx-auto px-6 py-12 pb-20 relative z-10">
         <div className="mb-10">
-          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-teal) mb-2.5 block">
+          <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-accent) mb-2.5 block">
             // dashboard
           </span>
           <h1 className="text-[clamp(26px,3vw,36px)] font-extrabold tracking-tighter text-(--v3-text) leading-[1.1] mb-2">
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             label="Total reviews"
             value={stats.totalReviews.toString()}
             delta={deltaLabel(stats.reviewsGrowth)}
-            colorClass="bg-(--v3-teal-dim) border-(--v3-teal)/20 text-(--v3-teal)"
+            colorClass="bg-(--v3-teal-dim) border-(--v3-teal)/20 text-(--v3-accent)"
           />
           <StatCard
             icon={<CheckCircle2 size={18} />}
@@ -159,7 +159,7 @@ export default function DashboardPage() {
 
         <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
           <div className="flex items-center gap-2.5">
-            <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-teal)">// my forms</span>
+            <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-accent)">// my forms</span>
             <span className="text-[11px] font-semibold bg-(--v3-bg3) border border-(--v3-border2) text-(--v3-muted2) px-2.5 py-0.5 rounded-full">
               {forms.length} forms
             </span>
@@ -195,7 +195,7 @@ export default function DashboardPage() {
               <p className="text-(--v3-muted) mb-4">You don't have any forms yet.</p>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="text-(--v3-teal) font-bold hover:underline"
+                className="text-(--v3-accent) font-bold hover:underline"
               >
                 Create your first form
               </button>

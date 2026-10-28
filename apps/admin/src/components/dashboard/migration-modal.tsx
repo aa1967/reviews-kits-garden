@@ -104,7 +104,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
       <div className="bg-(--v3-bg2) border border-(--v3-border) rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
         <div className="p-6 border-b border-(--v3-border) flex items-center justify-between bg-(--v3-bg3)/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal)">
+            <div className="w-10 h-10 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent)">
               <Upload size={20} />
             </div>
             <div>
@@ -143,7 +143,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
             <div className="space-y-6">
               <button 
                 onClick={() => setStep('source')}
-                className="text-[10px] font-bold uppercase tracking-widest text-(--v3-muted2) hover:text-(--v3-teal) mb-4"
+                className="text-[10px] font-bold uppercase tracking-widest text-(--v3-muted2) hover:text-(--v3-accent) mb-4"
               >
                 ← Back to sources
               </button>
@@ -151,7 +151,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
                 onClick={() => fileInputRef.current?.click()}
                 className="border-2 border-dashed border-(--v3-border) rounded-3xl p-12 flex flex-col items-center justify-center gap-4 transition-all hover:border-(--v3-teal) hover:bg-(--v3-teal)/5 cursor-pointer group"
               >
-                <div className="w-16 h-16 rounded-2xl bg-(--v3-bg3) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-teal) transition-colors">
+                <div className="w-16 h-16 rounded-2xl bg-(--v3-bg3) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-accent) transition-colors">
                   <Upload size={32} />
                 </div>
                 <div className="text-center">
@@ -172,7 +172,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
           {step === 'preview' && (
             <div className="space-y-6">
               <div className="bg-(--v3-bg3) border border-(--v3-border) rounded-2xl p-6 flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal)">
+                <div className="w-12 h-12 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent)">
                   {file?.name.endsWith('.json') ? <FileJson size={24} /> : <FileSpreadsheet size={24} />}
                 </div>
                 <div className="flex-1">
@@ -191,7 +191,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
 
               <div className="bg-(--v3-teal)/5 border border-(--v3-teal)/20 rounded-2xl p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <Check className="text-(--v3-teal)" size={16} />
+                  <Check className="text-(--v3-accent)" size={16} />
                   <p className="text-xs text-(--v3-text) font-medium">Auto-detecting headers...</p>
                 </div>
                 <p className="text-[10px] text-(--v3-muted2) leading-relaxed">
@@ -214,7 +214,7 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
             <div className="py-12 flex flex-col items-center justify-center gap-6">
               <div className="relative">
                 <div className="w-24 h-24 rounded-full border-4 border-(--v3-teal)/10 border-t-(--v3-teal) animate-spin" />
-                <div className="absolute inset-0 flex items-center justify-center text-(--v3-teal)">
+                <div className="absolute inset-0 flex items-center justify-center text-(--v3-accent)">
                   <Upload size={32} />
                 </div>
               </div>
@@ -227,13 +227,13 @@ export function MigrationModal({ isOpen, onClose, formId, onImported }: Migratio
 
           {step === 'success' && (
             <div className="py-8 flex flex-col items-center justify-center text-center gap-6">
-              <div className="w-20 h-20 rounded-full bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal) shadow-[0_0_40px_rgba(45,212,191,0.2)] animate-bounce">
+              <div className="w-20 h-20 rounded-full bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent) shadow-[0_0_40px_rgba(45,212,191,0.2)] animate-bounce">
                 <Check size={40} />
               </div>
               <div>
                 <h4 className="text-(--v3-text) font-bold text-2xl mb-2">Migration Successful!</h4>
                 <p className="text-sm text-(--v3-muted2)">
-                  Successfully imported <span className="text-(--v3-teal) font-black">{importedCount}</span> testimonials into your platform.
+                  Successfully imported <span className="text-(--v3-accent) font-black">{importedCount}</span> testimonials into your platform.
                 </p>
               </div>
               <button

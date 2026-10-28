@@ -59,7 +59,7 @@ export default function SecurityPage() {
            
            <div className="relative z-10">
               <div className="flex items-center gap-4 mb-4">
-                 <div className="w-10 h-10 rounded-xl bg-(--v3-teal-dim) border border-(--v3-teal)/20 flex items-center justify-center text-(--v3-teal)">
+                 <div className="w-10 h-10 rounded-xl bg-(--v3-teal-dim) border border-(--v3-teal)/20 flex items-center justify-center text-(--v3-accent)">
                     <Fingerprint size={20} />
                  </div>
                  <div>

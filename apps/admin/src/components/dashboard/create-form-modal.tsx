@@ -57,7 +57,7 @@ export function CreateFormModal({ isOpen, onClose, onCreated }: CreateFormModalP
           )}
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-teal)">Form name</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-accent)">Form name</label>
             <input
               required
               type="text"
@@ -69,7 +69,7 @@ export function CreateFormModal({ isOpen, onClose, onCreated }: CreateFormModalP
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-teal)">Slug (URL)</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-accent)">Slug (URL)</label>
             <div className="flex">
               <div className="bg-(--v3-bg3) border border-r-0 border-(--v3-border) rounded-l-lg px-3 py-3 text-[12px] text-(--v3-muted) font-mono min-w-fit">
                 reviewskits.com/f/
@@ -86,7 +86,7 @@ export function CreateFormModal({ isOpen, onClose, onCreated }: CreateFormModalP
           </div>
 
           <div className="space-y-2">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-teal)">Description (optional)</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-(--v3-accent)">Description (optional)</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}

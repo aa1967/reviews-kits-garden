@@ -64,6 +64,13 @@
       "when": 1793150548810,
       "tag": "0008_donation_preferences",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793224252998,
+      "tag": "0009_administration",
+      "breakpoints": true
     }
   ]
 }

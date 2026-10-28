@@ -4,7 +4,7 @@ export const Stars = ({ rating, size = 13 }: { rating: number | null, size?: num
   return (
     <div className="flex items-center gap-1" style={{ fontSize: size }}>
       {[...Array(5)].map((_, i) => (
-        <span key={i} className={i < rounded ? "text-(--v3-teal)" : "text-(--v3-bg3)"}>
+        <span key={i} className={i < rounded ? "text-(--v3-accent)" : "text-(--v3-bg3)"}>
           ★
         </span>
       ))}
@@ -14,9 +14,9 @@ export const Stars = ({ rating, size = 13 }: { rating: number | null, size?: num
 
 export const Badge = ({ status }: { status: string }) => {
   const config: Record<string, { label: string; active: boolean; color: string }> = {
-    active: { label: 'Active', active: true, color: 'var(--v3-teal)' },
+    active: { label: 'Active', active: true, color: 'var(--v3-accent)' },
     draft: { label: 'Draft', active: false, color: 'white' },
-    approved: { label: 'Approved', active: true, color: 'var(--v3-teal)' },
+    approved: { label: 'Approved', active: true, color: 'var(--v3-accent)' },
     pending: { label: 'Pending', active: true, color: '#f59e0b' },
     rejected: { label: 'Rejected', active: false, color: '#e84040' },
   }

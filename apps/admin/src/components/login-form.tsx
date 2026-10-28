@@ -33,7 +33,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-8", className)} {...props}>
       {/* Header */}
       <div className="text-center space-y-2">
-        <span className="text-[11px] font-black uppercase tracking-[0.14em] text-(--v3-teal)">
+        <span className="text-[11px] font-black uppercase tracking-[0.14em] text-(--v3-accent)">
           // admin
         </span>
         <h1 className="text-3xl font-black tracking-tight text-(--v3-text)">
@@ -59,12 +59,12 @@ export function LoginForm({
           <div className="space-y-2">
             <label
               htmlFor="email"
-              className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal)"
+              className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent)"
             >
               Email Address
             </label>
             <div className="relative group">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors duration-200">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors duration-200">
                 <Mail size={15} />
               </div>
               <input
@@ -83,12 +83,12 @@ export function LoginForm({
           <div className="space-y-2">
             <label
               htmlFor="password"
-              className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal)"
+              className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent)"
             >
               Password
             </label>
             <div className="relative group">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors duration-200">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors duration-200">
                 <Lock size={15} />
               </div>
               <input

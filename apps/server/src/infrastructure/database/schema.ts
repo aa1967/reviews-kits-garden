@@ -215,10 +215,25 @@ export const directoryBusinesses = pgTable('directory_businesses', {
   description: text('description').notNull().default(''),
   category: text('category').notNull().default('Other'),
   listed: boolean('listed').notNull().default(true),
+  permanentlyClosed: boolean('permanently_closed').notNull().default(false),
+  reviewsClosed: boolean('reviews_closed').notNull().default(false),
   ownerId: uuid('owner_id').references(() => users.id, { onDelete: 'set null' }),
   claimedAt: timestamp('claimed_at'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
-});
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, () => ({
+  closedReviews: check('directory_business_closed_reviews', sql.raw('NOT "permanently_closed" OR "reviews_closed"')),
+}));
+
+export const siteSettings = pgTable('site_settings', {
+  id: text('id').primaryKey().default('global'),
+  defaultTheme: text('default_theme', { enum: ['ruby-dark', 'ruby-light'] }).notNull().default('ruby-dark'),
+  updatedBy: uuid('updated_by').references(() => users.id, { onDelete: 'set null' }),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+}, () => ({
+  singleton: check('site_settings_singleton', sql.raw("\"id\" = 'global'")),
+  theme: check('site_settings_theme', sql.raw("\"default_theme\" IN ('ruby-dark', 'ruby-light')")),
+}));
 
 export const directoryMembers = pgTable('directory_members', {
   id: uuid('id').primaryKey().defaultRandom(),

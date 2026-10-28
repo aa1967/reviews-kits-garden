@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { BusinessLifecycle } from '@reviewskits/types';
 
 export type Score = { count: number; average: number | null; distribution: { rating: number; count: number }[] };
-export type Business = { id: string; domain: string; name: string; description: string; category: string; claimed: boolean; createdAt: string; score?: Score; isOwner?: boolean; listed?: boolean };
+export type Business = BusinessLifecycle & { id: string; domain: string; name: string; description: string; category: string; claimed: boolean; createdAt: string; score?: Score; isOwner?: boolean; listed?: boolean };
 export type Review = { id: string; title: string; content: string; rating: number; author: string; emailVerified: boolean; createdAt: string; reply: string | null; replyAt: string | null };
 export type Monitoring = {
   enabled: boolean; started: boolean; status: string; lastCheckAt: string | null; responseMs: number | null; tlsExpiresAt: string | null; widgetInstalled: boolean | null;
@@ -12,7 +13,7 @@ export type Claim = { id: string; businessId: string; method: 'dns' | 'file'; to
 export type Account = {
   user: { id: string; name: string; email: string; emailVerified: boolean; isSystemAdmin: boolean };
   businesses: Business[]; claims: { claim: Claim; domain: string }[];
-  reviews: { id: string; domain: string; title: string; content: string; rating: number; status: string; moderationReason: string | null; updatedAt: string }[];
+  reviews: { id: string; domain: string; title: string; content: string; rating: number; status: string; moderationReason: string | null; updatedAt: string; reviewsClosed: boolean; listed: boolean }[];
   alerts: { id: string; title: string; body: string | null; createdAt: string }[]; emailConfigured: boolean;
 };
 export type Managed = { business: Business; score: Score; reviews: Review[]; monitoring: Monitoring | null; monitor: { url: string; expectedText: string; enabled: boolean } | null; members: { id: string; name: string; email: string }[] };
@@ -25,7 +26,7 @@ export type Moderation = {
   counts: { status: string; count: number }[];
   reports: { report: { id: string; reviewId: string; kind: string; reason: string; createdAt: string }; title: string; domain: string }[];
   audit: { id: string; action: string; note: string; createdAt: string }[];
-  businesses: Business[]; workers: { name: string; lastSeenAt: string }[]; workerHealthy: boolean; emailConfigured: boolean;
+  workers: { name: string; lastSeenAt: string }[]; workerHealthy: boolean; emailConfigured: boolean;
 };
 export type Evidence = { reasons: string[]; score: number; notice: string; possibleConnections: { id: string; title: string; author: string; domain: string; status: string }[] };
 

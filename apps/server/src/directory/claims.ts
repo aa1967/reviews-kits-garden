@@ -2,6 +2,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../infrastructure/database/db';
 import { directoryAudit, directoryBusinesses, directoryClaims, directoryInvites, directoryMembers, directoryMonitors, notifications } from '../infrastructure/database/schema';
 import { verifyDomainProof } from './network';
+import { nextBusinessVersion } from './administration';
 
 export type Claim = typeof directoryClaims.$inferSelect;
 
@@ -12,7 +13,7 @@ export async function checkClaim(claim: Claim, proof = verifyDomainProof): Promi
     return;
   }
   const [business] = await db.select().from(directoryBusinesses).where(eq(directoryBusinesses.id, claim.businessId));
-  if (!business) return;
+  if (!business || !business.listed || business.permanentlyClosed) return;
   let matches = false;
   let error = 'Proof not found yet. Automatic checks will continue until the challenge expires.';
   try { matches = await proof(business.domain, claim.method, claim.token); }
@@ -25,15 +26,15 @@ export async function checkClaim(claim: Claim, proof = verifyDomainProof): Promi
     return;
   }
   await db.transaction(async (tx) => {
+    const [site] = await tx.select().from(directoryBusinesses).where(eq(directoryBusinesses.id, claim.businessId)).for('update');
     const [locked] = await tx.select().from(directoryClaims).where(eq(directoryClaims.id, claim.id)).for('update');
     if (!locked || locked.status !== 'pending' || locked.expiresAt <= new Date()) return;
-    const [site] = await tx.select().from(directoryBusinesses).where(eq(directoryBusinesses.id, claim.businessId)).for('update');
-    if (!site || site.ownerId) {
+    if (!site || site.ownerId || !site.listed || site.permanentlyClosed) {
       await tx.update(directoryClaims).set({ status: 'conflict', lastError: 'This business is already claimed. Contact platform support about an ownership transfer.' }).where(eq(directoryClaims.id, claim.id));
       return;
     }
     const now = new Date();
-    await tx.update(directoryBusinesses).set({ ownerId: claim.userId, claimedAt: now }).where(eq(directoryBusinesses.id, site.id));
+    await tx.update(directoryBusinesses).set({ ownerId: claim.userId, claimedAt: now, updatedAt: nextBusinessVersion(site.updatedAt) }).where(eq(directoryBusinesses.id, site.id));
     await tx.insert(directoryMembers).values({ businessId: site.id, userId: claim.userId }).onConflictDoNothing();
     await tx.insert(directoryMonitors).values({ businessId: site.id, url: 'https://' + site.domain }).onConflictDoNothing();
     await tx.update(directoryClaims).set({ status: 'verified', verifiedAt: now, lastError: null, nextCheckAt: new Date(Date.now() + 86400000) }).where(eq(directoryClaims.id, claim.id));
@@ -67,7 +68,7 @@ export async function recheckOwnership(claim: Claim, proof = verifyDomainProof):
       lastError: matches ? null : expired ? 'Ownership proof was absent for seven days. Access has been revoked. Verify a new claim or contact support.' : 'Ownership proof is missing. Restore your DNS record or verification file within seven days to keep business access.',
     }).where(eq(directoryClaims.id, claim.id));
     if (expired) {
-      await tx.update(directoryBusinesses).set({ ownerId: null, claimedAt: null }).where(eq(directoryBusinesses.id, site.id));
+      await tx.update(directoryBusinesses).set({ ownerId: null, claimedAt: null, updatedAt: nextBusinessVersion(site.updatedAt) }).where(eq(directoryBusinesses.id, site.id));
       await tx.delete(directoryMembers).where(eq(directoryMembers.businessId, site.id));
       await tx.delete(directoryInvites).where(eq(directoryInvites.businessId, site.id));
       await tx.update(directoryMonitors).set({ enabled: false }).where(eq(directoryMonitors.businessId, site.id));

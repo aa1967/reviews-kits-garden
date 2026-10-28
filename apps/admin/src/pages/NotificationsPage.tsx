@@ -56,7 +56,7 @@ export default function NotificationsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal)">
+            <div className="w-10 h-10 rounded-xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent)">
               <Bell size={20} />
             </div>
             <div>
@@ -69,7 +69,7 @@ export default function NotificationsPage() {
           {unreadCount > 0 && (
             <button
               onClick={markAllRead}
-              className="flex items-center gap-2 text-sm text-(--v3-muted2) hover:text-(--v3-teal) transition-colors cursor-pointer"
+              className="flex items-center gap-2 text-sm text-(--v3-muted2) hover:text-(--v3-accent) transition-colors cursor-pointer"
             >
               <CheckCheck size={16} />
               Mark all as read
@@ -92,7 +92,7 @@ export default function NotificationsPage() {
                 }}
                 className={`flex items-start gap-4 px-6 py-4 cursor-pointer border-b border-(--v3-border)/50 hover:bg-(--v3-bg3) transition-colors ${!n.isRead ? 'bg-(--v3-bg3)/50' : ''}`}
               >
-                <div className={`mt-0.5 w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${!n.isRead ? 'bg-(--v3-teal)/10 text-(--v3-teal)' : 'bg-(--v3-bg3) text-(--v3-muted2)'}`}>
+                <div className={`mt-0.5 w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${!n.isRead ? 'bg-(--v3-teal)/10 text-(--v3-accent)' : 'bg-(--v3-bg3) text-(--v3-muted2)'}`}>
                   <MessageSquareText size={16} />
                 </div>
                 <div className="flex-1 min-w-0">

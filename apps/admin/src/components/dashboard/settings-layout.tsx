@@ -25,7 +25,7 @@ export const SettingsLayout = ({ children, title, subtitle }: SettingsLayoutProp
         <div className="mb-10">
            <Link 
             to="/" 
-            className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-(--v3-muted2) hover:text-(--v3-teal) transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-(--v3-muted2) hover:text-(--v3-accent) transition-colors mb-4"
            >
              <ChevronLeft size={14} /> Back to Dashboard
            </Link>

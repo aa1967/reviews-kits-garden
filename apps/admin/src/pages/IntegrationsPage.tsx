@@ -62,7 +62,7 @@ export default function IntegrationsPage() {
 
         {/* Data Migration Section */}
         <div className="bg-(--v3-bg2) border border-(--v3-border) rounded-2xl p-6 flex flex-col md:flex-row items-center gap-6 group hover:border-(--v3-teal)/40 transition-all">
-          <div className="w-14 h-14 rounded-2xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal) shrink-0 shadow-[0_0_20px_rgba(45,212,191,0.1)]">
+          <div className="w-14 h-14 rounded-2xl bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent) shrink-0 shadow-[0_0_20px_rgba(45,212,191,0.1)]">
             <Upload size={28} />
           </div>
           <div className="flex-1 text-center md:text-left">
@@ -87,7 +87,7 @@ export default function IntegrationsPage() {
         <div className="pt-2">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl bg-(--v3-bg2) border border-(--v3-border) flex items-center justify-center text-(--v3-teal)">
+              <div className="w-10 h-10 rounded-xl bg-(--v3-bg2) border border-(--v3-border) flex items-center justify-center text-(--v3-accent)">
                 <Activity size={20} />
               </div>
               <div>
@@ -136,7 +136,7 @@ export default function IntegrationsPage() {
                       <td className="px-6 py-4">
                         <div className="flex flex-wrap gap-1">
                           {hook.events.map((ev: string) => (
-                            <span key={ev} className="px-2 py-0.5 bg-(--v3-teal)/10 text-(--v3-teal) rounded-md text-[10px] font-bold border border-(--v3-teal)/20 uppercase tracking-tight">
+                            <span key={ev} className="px-2 py-0.5 bg-(--v3-teal)/10 text-(--v3-accent) rounded-md text-[10px] font-bold border border-(--v3-teal)/20 uppercase tracking-tight">
                               {ev}
                             </span>
                           ))}
@@ -146,7 +146,7 @@ export default function IntegrationsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleTest(hook.id)}
-                            className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) hover:text-(--v3-teal) hover:border-(--v3-teal) transition-all" title="Test Payload"
+                            className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) hover:text-(--v3-accent) hover:border-(--v3-teal) transition-all" title="Test Payload"
                           >
                             <Play size={14} />
                           </button>
@@ -168,7 +168,7 @@ export default function IntegrationsPage() {
 
         {/* Security / Documentation */}
         <div className="p-6 bg-(--v3-teal)/5 border border-(--v3-teal)/20 rounded-xl flex flex-col md:flex-row gap-8 items-start md:items-center mt-12 shadow-sm group hover:border-(--v3-teal)/40 transition-all">
-          <div className="w-16 h-16 rounded-full bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-teal) shrink-0 shadow-[0_0_40px_rgba(45,212,191,0.1)] group-hover:scale-110 transition-transform">
+          <div className="w-16 h-16 rounded-full bg-(--v3-teal)/10 flex items-center justify-center text-(--v3-accent) shrink-0 shadow-[0_0_40px_rgba(45,212,191,0.1)] group-hover:scale-110 transition-transform">
             <ShieldCheck size={40} />
           </div>
           <div className="flex-1">
@@ -216,7 +216,7 @@ export default function IntegrationsPage() {
                 <label className="text-xs font-bold text-(--v3-muted2) uppercase tracking-wider">Events</label>
                 <div className="p-4 bg-(--v3-bg) border border-(--v3-border) rounded-xl">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <input type="checkbox" checked readOnly className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-teal)" />
+                    <input type="checkbox" checked readOnly className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-accent)" />
                     <span className="text-sm text-(--v3-text)">New Review Submitted</span>
                   </label>
                 </div>

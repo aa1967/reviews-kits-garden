@@ -71,7 +71,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] font-medium text-(--v3-text) hover:bg-(--v3-border) transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-teal) transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-accent) transition-colors">
                 <User size={16} />
               </div>
               My Profile
@@ -85,7 +85,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
             className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] font-medium text-(--v3-text) hover:bg-(--v3-border) transition-all group"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-teal) transition-colors">
+              <div className="w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) group-hover:text-(--v3-accent) transition-colors">
                 <Settings size={16} />
               </div>
               Settings
@@ -97,10 +97,10 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
           <div className="space-y-1">
             <button
               onClick={() => setShowApiKeys(!showApiKeys)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] font-medium transition-all group ${showApiKeys ? 'bg-(--v3-border) text-(--v3-teal)' : 'text-(--v3-text) hover:bg-(--v3-border)'}`}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] font-medium transition-all group ${showApiKeys ? 'bg-(--v3-border) text-(--v3-accent)' : 'text-(--v3-text) hover:bg-(--v3-border)'}`}
             >
               <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center transition-colors ${showApiKeys ? 'text-(--v3-teal)' : 'text-(--v3-muted2) group-hover:text-(--v3-teal)'}`}>
+                <div className={`w-8 h-8 rounded-lg bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center transition-colors ${showApiKeys ? 'text-(--v3-accent)' : 'text-(--v3-muted2) group-hover:text-(--v3-accent)'}`}>
                   <Key size={16} />
                 </div>
                 API Keys
@@ -122,7 +122,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); if (apiKeys) copyToClipboard(apiKeys.publicKey, 'public') }}
-                    className={`p-1.5 rounded-md transition-all ${copiedKey === 'public' ? 'text-emerald-500 bg-emerald-500/10' : 'hover:bg-(--v3-border) text-(--v3-muted2) hover:text-(--v3-teal)'}`}
+                    className={`p-1.5 rounded-md transition-all ${copiedKey === 'public' ? 'text-emerald-500 bg-emerald-500/10' : 'hover:bg-(--v3-border) text-(--v3-muted2) hover:text-(--v3-accent)'}`}
                   >
                     {copiedKey === 'public' ? <Check size={12} /> : <Copy size={12} />}
                   </button>
@@ -144,7 +144,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleRotateKeys() }}
-                      className="p-1.5 hover:bg-(--v3-border) rounded-md text-(--v3-muted2) hover:text-(--v3-teal) transition-all"
+                      className="p-1.5 hover:bg-(--v3-border) rounded-md text-(--v3-muted2) hover:text-(--v3-accent) transition-all"
                     >
                       <RefreshCw size={12} />
                     </button>
@@ -173,7 +173,7 @@ export const ProfileMenu = ({ isOpen, onClose }: ProfileMenuProps) => {
       {/* Footer info */}
       <div className="p-4 bg-(--v3-bg3)/60 flex items-center justify-between">
         <span className="text-[10px] font-bold text-(--v3-muted2) opacity-50 uppercase tracking-widest">v1.2.0</span>
-        <a href="#" className="text-[10px] font-bold text-(--v3-teal) hover:underline flex items-center gap-1">
+        <a href="#" className="text-[10px] font-bold text-(--v3-accent) hover:underline flex items-center gap-1">
           Docs <ExternalLink size={10} />
         </a>
       </div>

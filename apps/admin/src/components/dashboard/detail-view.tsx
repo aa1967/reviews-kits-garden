@@ -127,7 +127,7 @@ const SortableTestimonialRow = ({
         <div className="flex flex-col items-end">
           <span className="text-[11px] font-bold text-(--v3-text)">{formatDate(testimonial.createdAt)}</span>
           <div className="flex items-center gap-1.5 mt-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => onStatusUpdate(testimonial.id, 'approved')} className="w-6 h-6 flex items-center justify-center rounded-md bg-(--v3-teal)/10 text-(--v3-teal) hover:bg-(--v3-teal) hover:text-white transition-all shadow-sm" title="Approve"><Check size={12} /></button>
+            <button onClick={() => onStatusUpdate(testimonial.id, 'approved')} className="w-6 h-6 flex items-center justify-center rounded-md bg-(--v3-teal)/10 text-(--v3-accent) hover:bg-(--v3-teal) hover:text-white transition-all shadow-sm" title="Approve"><Check size={12} /></button>
             <button onClick={() => onStatusUpdate(testimonial.id, 'rejected')} className="w-6 h-6 flex items-center justify-center rounded-md bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all shadow-sm" title="Reject"><XCircle size={12} /></button>
           </div>
         </div>
@@ -232,7 +232,7 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
     return (
       <main className="max-w-285 mx-auto px-6 py-12 pb-20 relative z-10">
         <div className="flex flex-col items-center justify-center py-20 text-(--v3-muted)">
-          <RefreshCw size={24} className="animate-spin mb-4 text-(--v3-teal)" />
+          <RefreshCw size={24} className="animate-spin mb-4 text-(--v3-accent)" />
           <p className="text-sm font-medium">Loading data...</p>
         </div>
       </main>
@@ -242,13 +242,13 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main className="max-w-285 mx-auto px-6 py-12 pb-20 relative z-10">
-      <button onClick={onBack} className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-(--v3-muted2) hover:text-(--v3-teal) transition-colors mb-6">
+      <button onClick={onBack} className="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-(--v3-muted2) hover:text-(--v3-accent) transition-colors mb-6">
         <ChevronLeftIcon size={14} />
         Back to Dashboard
       </button>
 
       <div className="mb-8">
-        <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-teal) mb-2.5 block">// form</span>
+        <span className="text-[12px] font-semibold uppercase tracking-[0.12em] text-(--v3-accent) mb-2.5 block">// form</span>
         <div className="flex flex-wrap justify-between items-start gap-4">
           <div className="flex-1">
             <h1 className="text-[clamp(20px,2.5vw,28px)] font-extrabold tracking-tighter leading-tight text-(--v3-text) mb-3">{form.name}</h1>
@@ -263,7 +263,7 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
               </div>
 
               <button onClick={() => navigate(`/forms/${form.id}/edit`)} className="flex items-center gap-2 bg-white/5 border border-white/10 text-(--v3-text) px-4 py-2 rounded-xl text-xs font-bold hover:bg-white/10 hover:border-white/20 transition-all group">
-                <Pencil size={13} className="text-(--v3-muted2) group-hover:text-(--v3-teal) transition-colors" />
+                <Pencil size={13} className="text-(--v3-muted2) group-hover:text-(--v3-accent) transition-colors" />
                 Edit
               </button>
 
@@ -289,7 +289,7 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
                           {copiedLink ? <Check size={12} /> : <Copy size={12} />}
                         </button>
                       </div>
-                      <a href={`/f/${form.publicId}`} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-(--v3-teal) hover:underline flex items-center gap-1 mt-1">
+                      <a href={`/f/${form.publicId}`} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-(--v3-accent) hover:underline flex items-center gap-1 mt-1">
                         Open link <ChevronRight size={10} />
                       </a>
                     </div>
@@ -314,7 +314,7 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
 
       {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={<MessageSquare size={18} />} label="Total reviews" value={totReviews.toString()} delta={stats?.reviewsGrowth !== undefined ? (stats.reviewsGrowth > 0 ? `↑ +${stats.reviewsGrowth}%` : stats.reviewsGrowth < 0 ? `↓ ${stats.reviewsGrowth}%` : "0%") : "—"} colorClass="bg-(--v3-teal-dim) border-(--v3-teal)/20 text-(--v3-teal)" />
+        <StatCard icon={<MessageSquare size={18} />} label="Total reviews" value={totReviews.toString()} delta={stats?.reviewsGrowth !== undefined ? (stats.reviewsGrowth > 0 ? `↑ +${stats.reviewsGrowth}%` : stats.reviewsGrowth < 0 ? `↓ ${stats.reviewsGrowth}%` : "0%") : "—"} colorClass="bg-(--v3-teal-dim) border-(--v3-teal)/20 text-(--v3-accent)" />
         <StatCard icon={<TrendingUp size={18} />} label="Completion" value={`${stats?.completionRate ?? form.completion ?? 100}%`} delta={stats?.completionGrowth !== undefined ? (stats.completionGrowth > 0 ? `↑ +${stats.completionGrowth}%` : stats.completionGrowth < 0 ? `↓ ${stats.completionGrowth}%` : "0%") : "—"} colorClass="bg-sky-500/10 border-sky-500/20 text-sky-500" />
         <StatCard icon={<Star size={18} />} label="Average rating" value={avgRating > 0 ? avgRating.toFixed(1) : "—"} colorClass="bg-amber-500/10 border-amber-500/20 text-amber-500" />
         <StatCard icon={<Users size={18} />} label="Unique respondents" value={(stats?.uniqueRespondents || 0).toString()} colorClass="bg-purple-500/10 border-purple-500/20 text-purple-500" />
@@ -368,10 +368,10 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
         <div className="flex justify-between items-center px-6 py-5 border-b border-(--v3-border) bg-white/1">
           <span className="text-[14px] font-black uppercase tracking-widest text-(--v3-text) opacity-80">// Review Management</span>
           <div className="flex items-center gap-3">
-            <button onClick={() => window.open(testimonialsService.exportUrl(form.id), '_blank')} className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-(--v3-muted2) px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-(--v3-teal) transition-all">
+            <button onClick={() => window.open(testimonialsService.exportUrl(form.id), '_blank')} className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-(--v3-muted2) px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-(--v3-accent) transition-all">
               <Download size={12} /> Export CSV
             </button>
-            <button onClick={() => setIsMigrationModalOpen(true)} className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-(--v3-muted2) px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-(--v3-teal) transition-all">
+            <button onClick={() => setIsMigrationModalOpen(true)} className="flex items-center gap-1.5 bg-white/5 border border-white/10 text-(--v3-muted2) px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-white/10 hover:text-(--v3-accent) transition-all">
               <Upload size={12} /> Import
             </button>
             <div className="w-px h-4 bg-white/10 mx-1" />
@@ -394,16 +394,16 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
                         />
                       </div>
                     </th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) cursor-pointer hover:text-(--v3-teal) transition-colors" onClick={() => handleSort('authorName')}><div className="flex items-center">Author <SortIcon field="authorName" sortConfig={sortConfig} /></div></th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) cursor-pointer hover:text-(--v3-accent) transition-colors" onClick={() => handleSort('authorName')}><div className="flex items-center">Author <SortIcon field="authorName" sortConfig={sortConfig} /></div></th>
                     <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2)">Review</th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-center cursor-pointer hover:text-(--v3-teal) transition-colors" onClick={() => handleSort('rating')}><div className="flex items-center justify-center">Rating <SortIcon field="rating" sortConfig={sortConfig} /></div></th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-center cursor-pointer hover:text-(--v3-teal) transition-colors" onClick={() => handleSort('status')}><div className="flex items-center justify-center">Status <SortIcon field="status" sortConfig={sortConfig} /></div></th>
-                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-right cursor-pointer hover:text-(--v3-teal) transition-colors" onClick={() => handleSort('createdAt')}><div className="flex items-center justify-end">Date <SortIcon field="createdAt" sortConfig={sortConfig} /></div></th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-center cursor-pointer hover:text-(--v3-accent) transition-colors" onClick={() => handleSort('rating')}><div className="flex items-center justify-center">Rating <SortIcon field="rating" sortConfig={sortConfig} /></div></th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-center cursor-pointer hover:text-(--v3-accent) transition-colors" onClick={() => handleSort('status')}><div className="flex items-center justify-center">Status <SortIcon field="status" sortConfig={sortConfig} /></div></th>
+                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) text-right cursor-pointer hover:text-(--v3-accent) transition-colors" onClick={() => handleSort('createdAt')}><div className="flex items-center justify-end">Date <SortIcon field="createdAt" sortConfig={sortConfig} /></div></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-(--v3-border)">
                   {testimonialsLoading ? (
-                    <tr><td colSpan={6} className="py-16 text-center"><RefreshCw size={20} className="animate-spin text-(--v3-teal) mx-auto" /></td></tr>
+                    <tr><td colSpan={6} className="py-16 text-center"><RefreshCw size={20} className="animate-spin text-(--v3-accent) mx-auto" /></td></tr>
                   ) : testimonials.length === 0 ? (
                     <tr><td colSpan={6} className="py-16 text-center text-(--v3-muted2) italic text-sm">No reviews found.</td></tr>
                   ) : testimonials.map((r) => (
@@ -433,7 +433,7 @@ export const DetailView = ({ form, onBack }: DetailViewProps) => {
               <span className="text-[11px] font-black uppercase tracking-widest text-(--v3-text)">Selected</span>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={() => handleBatchStatusUpdate('approved')} disabled={batchUpdateStatus.isPending} className="flex items-center gap-2 bg-(--v3-teal)/10 text-(--v3-teal) border border-(--v3-teal)/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-(--v3-teal) hover:text-white transition-all disabled:opacity-50"><Check size={14} /> Approve</button>
+              <button onClick={() => handleBatchStatusUpdate('approved')} disabled={batchUpdateStatus.isPending} className="flex items-center gap-2 bg-(--v3-teal)/10 text-(--v3-accent) border border-(--v3-teal)/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-(--v3-teal) hover:text-white transition-all disabled:opacity-50"><Check size={14} /> Approve</button>
               <button onClick={() => handleBatchStatusUpdate('rejected')} disabled={batchUpdateStatus.isPending} className="flex items-center gap-2 bg-red-500/10 text-red-400 border border-red-500/20 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"><XCircle size={14} /> Reject</button>
             </div>
             <button onClick={() => setSelectedIds([])} className="text-[10px] font-black uppercase tracking-widest text-(--v3-muted2) hover:text-(--v3-text) ml-2">Cancel</button>

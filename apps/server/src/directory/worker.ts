@@ -33,7 +33,7 @@ export async function leaseMonitor(): Promise<Monitor | undefined> {
 
 export async function processMonitor(monitor: Monitor, probe = safeHttpsGet): Promise<void> {
   const [site] = await db.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, monitor.businessId));
-  if (!site || !site.listed || !site.ownerId) return;
+  if (!site || !site.listed || site.permanentlyClosed || !site.ownerId) return;
   let result: 'up' | 'down' | 'unknown' = 'unknown';
   let detail = 'No response';
   let response: ProbeResponse | undefined;

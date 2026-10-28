@@ -62,6 +62,12 @@ If PostgreSQL is unavailable, startup stops with its host and port before launch
 the website. It does not print database passwords. Use `bun run dev` for ordinary
 startup; `dev:app` expects an already reachable database.
 
+On Debian, `permission denied` for `/var/run/docker.sock` means your current user
+cannot start the database. Run `sudo usermod -aG docker "$USER"`, then log out and
+back in, or run `newgrp docker` to open a shell with the updated group. Verify
+`docker ps` works in that shell, then run `bun run dev`. Docker group membership
+grants administrative control over Docker.
+
 ## Optional services
 
 `bun run cache:start` enables Redis and `bun run storage:start` enables Chainguard

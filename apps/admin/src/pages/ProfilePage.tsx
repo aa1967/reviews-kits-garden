@@ -80,7 +80,7 @@ export default function ProfilePage() {
               <div className="w-20 h-20 rounded-full bg-linear-to-br from-(--v3-teal) to-[#0a6e52] flex items-center justify-center text-2xl font-bold text-white shadow-2xl">
                 {session?.user?.name?.[0] || 'U'}
               </div>
-              <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) hover:text-(--v3-teal) transition-all shadow-lg">
+              <button className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-(--v3-bg3) border border-(--v3-border) flex items-center justify-center text-(--v3-muted2) hover:text-(--v3-accent) transition-all shadow-lg">
                 <Camera size={14} />
               </button>
             </div>
@@ -95,9 +95,9 @@ export default function ProfilePage() {
         <section className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal) ml-1">Full Name</label>
+              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent) ml-1">Full Name</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors">
                   <UserIcon size={16} />
                 </div>
                 <input
@@ -111,9 +111,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal) ml-1">Email Address</label>
+              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent) ml-1">Email Address</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors">
                   <Mail size={16} />
                 </div>
                 <input
@@ -146,9 +146,9 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-1 gap-6">
             <div className="space-y-2">
-              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal) ml-1">Current Password</label>
+              <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent) ml-1">Current Password</label>
               <div className="relative group">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors">
                   <Lock size={16} />
                 </div>
                 <input
@@ -163,9 +163,9 @@ export default function ProfilePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal) ml-1">New Password</label>
+                <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent) ml-1">New Password</label>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors">
                     <Lock size={16} />
                   </div>
                   <input
@@ -179,9 +179,9 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-teal) ml-1">Confirm New Password</label>
+                <label className="text-[11px] font-black uppercase tracking-wider text-(--v3-accent) ml-1">Confirm New Password</label>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-teal) transition-colors">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-(--v3-muted) group-focus-within:text-(--v3-accent) transition-colors">
                     <Lock size={16} />
                   </div>
                   <input

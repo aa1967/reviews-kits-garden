@@ -58,7 +58,7 @@ export const ShareModal = ({ isOpen, onClose, formName, formSlug, publicId }: Sh
             {/* Direct Link */}
             <div>
               <div className="flex items-center gap-2 mb-3">
-                <Globe size={14} className="text-(--v3-teal)" />
+                <Globe size={14} className="text-(--v3-accent)" />
                 <span className="text-[11px] font-bold uppercase tracking-wider text-(--v3-muted2)">Direct link</span>
               </div>
               <div className="flex gap-2">

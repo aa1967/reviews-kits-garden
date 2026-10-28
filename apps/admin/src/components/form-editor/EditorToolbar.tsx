@@ -40,7 +40,7 @@ export function EditorToolbar({
         </button>
         <div className="h-6 w-px bg-white/10" />
         <div className="flex-1 max-w-md">
-          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-(--v3-teal) block opacity-60">
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-(--v3-accent) block opacity-60">
             Editor
           </span>
           <input

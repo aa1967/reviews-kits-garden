@@ -3,12 +3,15 @@ import { SettingsLayout } from '../components/dashboard/settings-layout'
 import { Globe, Bell, Moon, Sun } from 'lucide-react'
 import { useTheme } from '../hooks/useTheme'
 import { meService, type NotificationPrefs } from '../services/me.service'
+import { Link } from 'react-router-dom'
+import { useDirectory, type Account } from '../services/directory'
 
 const defaultPrefs: NotificationPrefs = { newReview: true, weeklyReport: true }
 
 export default function SettingsPage() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, preference, followSiteDefault } = useTheme()
   const isDark = theme === 'dark'
+  const account = useDirectory<Account>('/me')
 
   const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>(defaultPrefs)
   useEffect(() => {
@@ -29,6 +32,7 @@ export default function SettingsPage() {
       subtitle="Configure general options for your account and interface."
     >
       <div className="space-y-6">
+        {account.data?.user.isSystemAdmin && <Link className="text-(--v3-accent) underline" to="/site-settings">Open site settings to change the default theme for everyone</Link>}
         {/* Appearance */}
         <div className="bg-(--v3-bg2) border border-(--v3-border) rounded-2xl p-6">
           <div className="flex items-center justify-between">
@@ -37,8 +41,9 @@ export default function SettingsPage() {
                   {isDark ? <Moon size={20} /> : <Sun size={20} />}
                </div>
                <div>
-                  <h3 className="font-bold text-(--v3-text)">{isDark ? 'Dark Mode' : 'Light Mode'}</h3>
-                  <p className="text-xs text-(--v3-muted2)">Switch between dark and light theme.</p>
+                  <h3 className="font-bold text-(--v3-text)">{isDark ? 'Dark ruby red' : 'Light ruby red'}</h3>
+                  <p className="text-xs text-(--v3-muted2)">Personal appearance on this device.</p>
+                  {preference && <button className="text-xs text-(--v3-accent) underline" onClick={followSiteDefault}>Use the site default</button>}
                </div>
             </div>
             <button
@@ -82,12 +87,12 @@ export default function SettingsPage() {
            </div>
            <div className="space-y-4 pt-2">
               <label className="flex items-center gap-3 cursor-pointer group">
-                 <input type="checkbox" checked={notifPrefs.newReview} onChange={() => togglePref('newReview')} className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-teal)" />
-                 <span className="text-sm text-(--v3-text) group-hover:text-(--v3-teal) transition-colors">New reviews received</span>
+                 <input type="checkbox" checked={notifPrefs.newReview} onChange={() => togglePref('newReview')} className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-accent)" />
+                 <span className="text-sm text-(--v3-text) group-hover:text-(--v3-accent) transition-colors">New reviews received</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer group">
-                 <input type="checkbox" checked={notifPrefs.weeklyReport} onChange={() => togglePref('weeklyReport')} className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-teal)" />
-                 <span className="text-sm text-(--v3-text) group-hover:text-(--v3-teal) transition-colors">Weekly reports</span>
+                 <input type="checkbox" checked={notifPrefs.weeklyReport} onChange={() => togglePref('weeklyReport')} className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-accent)" />
+                 <span className="text-sm text-(--v3-text) group-hover:text-(--v3-accent) transition-colors">Weekly reports</span>
               </label>
            </div>
         </div>

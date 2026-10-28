@@ -92,13 +92,13 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
             type="checkbox"
             checked={isSelected}
             onChange={(e) => onSelect(form.id, e.target.checked)}
-            className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-teal) focus:ring-offset-0 focus:ring-0 cursor-pointer"
+            className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-accent) focus:ring-offset-0 focus:ring-0 cursor-pointer"
           />
         </div>
       </td>
       <td className="py-3.5 px-4 min-w-60" onClick={() => onOpen(form.id)}>
         <div className="flex items-center gap-3 cursor-pointer">
-          <div className="w-8 h-8 rounded-lg bg-(--v3-teal-dim) border border-(--v3-teal)/20 flex items-center justify-center shrink-0 text-(--v3-teal)">
+          <div className="w-8 h-8 rounded-lg bg-(--v3-teal-dim) border border-(--v3-teal)/20 flex items-center justify-center shrink-0 text-(--v3-accent)">
             <FileText size={16} />
           </div>
           <div className="min-w-0 max-w-35 sm:max-w-45">
@@ -109,7 +109,7 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
                   <div className="text-[9px] text-(--v3-muted2) font-mono truncate opacity-40">ID: {form.publicId.substring(0, 10)}...</div>
                   <button 
                     onClick={copyId}
-                    className={`opacity-0 group-hover/id:opacity-100 p-0.5 rounded transition-all ${isCopied ? 'text-emerald-500' : 'text-(--v3-muted2) hover:text-(--v3-teal) hover:bg-white/5'}`}
+                    className={`opacity-0 group-hover/id:opacity-100 p-0.5 rounded transition-all ${isCopied ? 'text-emerald-500' : 'text-(--v3-muted2) hover:text-(--v3-accent) hover:bg-white/5'}`}
                     title="Copy ID"
                   >
                     {isCopied ? <Check size={10} /> : <Copy size={10} />}
@@ -139,7 +139,7 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
             <div className="flex flex-col gap-1 w-24 mx-auto">
               <div className="flex justify-between items-center px-0.5">
                 <span className="text-[9px] font-bold text-(--v3-muted2) opacity-60 uppercase">Progress</span>
-                <span className="text-[9px] font-bold text-(--v3-teal)">{form.completion ?? 0}%</span>
+                <span className="text-[9px] font-bold text-(--v3-accent)">{form.completion ?? 0}%</span>
               </div>
               <div className="h-1 bg-white/[0.05] rounded-full overflow-hidden">
                 <div className="h-full bg-(--v3-teal) transition-all" style={{ width: `${form.completion ?? 0}%` }} />
@@ -157,7 +157,7 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
               </button>
     
               <button
-                className="p-2 text-(--v3-muted2) hover:text-(--v3-teal) hover:bg-(--v3-teal)/10 rounded-lg transition-all group/btn"
+                className="p-2 text-(--v3-muted2) hover:text-(--v3-accent) hover:bg-(--v3-teal)/10 rounded-lg transition-all group/btn"
                 title="Edit"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -335,7 +335,7 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
                             type="checkbox"
                             checked={forms.length > 0 && selectedIds.size === forms.length}
                             onChange={(e) => toggleSelectAll(e.target.checked)}
-                            className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-teal) focus:ring-offset-0 focus:ring-0 cursor-pointer"
+                            className="w-4 h-4 rounded border-(--v3-border) bg-(--v3-bg) text-(--v3-accent) focus:ring-offset-0 focus:ring-0 cursor-pointer"
                           />
                         </div>
                       </th>
@@ -390,7 +390,7 @@ const SortableRow = ({ form, isSelected, onSelect, onOpen, onDelete, onDuplicate
                   onClick={() => handlePageChange(i + 1)}
                   className={`w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                     currentPage === i + 1 
-                    ? 'bg-(--v3-teal)/20 border border-(--v3-teal)/30 text-(--v3-teal)' 
+                    ? 'bg-(--v3-teal)/20 border border-(--v3-teal)/30 text-(--v3-accent)'
                     : 'text-(--v3-muted2) hover:text-(--v3-text) hover:bg-white/5'
                   }`}
                 >
