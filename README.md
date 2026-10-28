@@ -60,6 +60,8 @@ For custom settings and troubleshooting, see [development details](docs/developm
 - Automated ownership verification through DNS TXT records or an HTTPS file.
 - Administrator-controlled business editing, closure, deletion, review moderation, and spam investigation.
 - Dark and light ruby red themes, with dark ruby red as the site default.
+- Dashboard profile/settings, small profile pictures, pseudonyms and per-review anonymity.
+- Business responses, reviewer-confirmed resolution labels and admin user management.
 - Uptime checks, outage history, response times, TLS expiry, and alerts.
 - Score badges, latest reviews, and selected highlights to embed on other sites.
 - Original forms, testimonial workspace, REST API, and React/Vue SDKs.
@@ -67,6 +69,8 @@ For custom settings and troubleshooting, see [development details](docs/developm
 
 See the [directory guide](docs/public-directory.md) for workflows and permissions.
 See [administration](docs/administration.md) for business controls and site themes.
+See [accounts and resolutions](docs/accounts-and-resolutions.md) for profile settings,
+review privacy, business replies and user management in development and production.
 See the [donation guide](docs/donations.md) to configure receiving wallets and
 optionally enable supporter rankings. Donations are verified by administrators.
 

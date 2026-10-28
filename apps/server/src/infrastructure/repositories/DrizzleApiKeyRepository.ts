@@ -1,4 +1,4 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import type { BunSQLDatabase } from 'drizzle-orm/bun-sql';
 import * as schema from '../database/schema';
 import { apiKeys } from '../database/schema';
@@ -15,9 +15,10 @@ export class DrizzleApiKeyRepository implements IApiKeyRepository {
   }
 
   async findByHash(keyHash: string): Promise<ApiKey | null> {
-    const [row] = await this.db.select().from(apiKeys).where(and(eq(apiKeys.keyHash, keyHash), eq(apiKeys.isActive, true)));
+    const [row] = await this.db.select({ key: apiKeys }).from(apiKeys).innerJoin(schema.users, eq(schema.users.id, apiKeys.userId))
+      .where(and(eq(apiKeys.keyHash, keyHash), eq(apiKeys.isActive, true), isNull(schema.users.suspendedAt)));
     if (!row) return null;
-    return this.mapToDomain(row);
+    return this.mapToDomain(row.key);
   }
 
   async findByUser(userId: string): Promise<ApiKey[]> {

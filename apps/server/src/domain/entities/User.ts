@@ -68,6 +68,7 @@ export class User {
 
   public updateEmail(email: string): void {
     if (!email) throw new Error("User email cannot be empty");
+    if (email !== this.email) this.emailVerified = false;
     this.email = email;
     this.updatedAt = new Date();
   }

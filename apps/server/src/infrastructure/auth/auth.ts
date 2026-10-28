@@ -1,7 +1,8 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { bearer } from "better-auth/plugins";
-import { sql } from "drizzle-orm";
+import { APIError } from 'better-auth/api';
+import { eq, sql } from "drizzle-orm";
 import { db } from "../database/db";
 import * as schema from "../database/schema";
 import { mailConfigured, publicBaseUrl, sendDirectoryMail } from "../../directory/mail";
@@ -44,6 +45,23 @@ export const auth = betterAuth({
     },
   },
   databaseHooks: {
+    session: {
+      create: {
+        before: async (session) => {
+          const [account] = await db.select().from(schema.users).where(eq(schema.users.id, session.userId));
+          if (!account || account.suspendedAt) throw new APIError('FORBIDDEN', { message: 'This account is suspended. Contact platform support.' });
+        },
+        after: async (session) => {
+          const [account] = await db.select().from(schema.users).where(eq(schema.users.id, session.userId));
+          if (!account || account.suspendedAt) {
+            await db.delete(schema.sessions).where(eq(schema.sessions.id, session.id));
+            throw new APIError('FORBIDDEN', { message: 'This account is suspended. Contact platform support.' });
+          }
+          await db.update(schema.users).set({ lastSignInAt: new Date() }).where(eq(schema.users.id, session.userId));
+          await db.insert(schema.directoryAudit).values({ actorId: session.userId, targetId: session.userId, action: 'account.signed-in', note: 'Successful account sign-in.' });
+        },
+      },
+    },
     user: {
       create: {
         before: async (user) => {

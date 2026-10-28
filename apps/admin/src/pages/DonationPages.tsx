@@ -50,15 +50,16 @@ function PaymentReport({ donation, reload }: { donation: DonationRecord; reload:
   </form>;
 }
 
-function LeaderboardIdentity({ identity, accountName, reload, verified }: { identity: DonationIdentity; accountName: string; reload: () => void; verified: boolean }) {
+export function LeaderboardIdentity({ identity, accountName, reload, verified, profileAlias }: { identity: DonationIdentity; accountName: string; reload: () => void; verified: boolean; profileAlias?: string | null }) {
   const [mode, setMode] = useState(identity.mode), [pseudonym, setPseudonym] = useState(identity.pseudonym ?? ''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [success, setSuccess] = useState('');
   return <form className="donation-identity" onSubmit={async (event) => {
     event.preventDefault(); setBusy(true); setError(''); setSuccess('');
     try { await api('/donations/identity', 'PUT', { mode, ...(mode === 'pseudonym' ? { pseudonym } : {}) }); reload(); setSuccess('Your persistent leaderboard identity has been saved.'); }
     catch (cause) { setError(message(cause)); } finally { setBusy(false); }
   }}><h3>Your leaderboard identity</h3><p className="dir-small dir-muted">Saved name: <strong>{identity.name}</strong>. This applies to all your public donations, including future donations, and does not change your review display name.</p>
-    <label>Leaderboard name<select value={mode} onChange={(e) => setMode(e.target.value as DonationIdentity['mode'])}><option value="account">Use my account display name ({accountName})</option><option value="pseudonym">Use a persistent pseudonym</option></select></label>
+    <label>Leaderboard name<select aria-label="Leaderboard name" value={mode} onChange={(e) => setMode(e.target.value as DonationIdentity['mode'])}><option value="account">Use my account display name ({accountName})</option><option value="pseudonym">Use a persistent pseudonym</option></select></label>
     {mode === 'pseudonym' && <label>Supporter pseudonym<input value={pseudonym} onChange={(e) => setPseudonym(e.target.value)} required minLength={3} maxLength={40} autoComplete="off" placeholder="e.g. MoonBadger" /></label>}
+    {profileAlias && <button type="button" className="dir-link" onClick={() => { setMode('pseudonym'); setPseudonym(profileAlias); }}>Use my profile pseudonym for donations</button>}
     <p className="dir-small dir-muted">Pseudonyms are unique without regard to letter case. You can still keep individual donations anonymous.</p>
     <button className="dir-button secondary" disabled={busy || !verified}>{busy ? 'Saving…' : 'Save leaderboard identity'}</button>{error && <Notice error>{error}</Notice>}{success && <Notice>{success}</Notice>}
   </form>;

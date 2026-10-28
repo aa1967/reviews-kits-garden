@@ -6,7 +6,7 @@ export function escapeHtml(value: string): string {
 
 export function renderWidget(
   business: { domain: string; name: string; permanentlyClosed?: boolean; reviewsClosed?: boolean }, score: { count: number; average: number | null },
-  reviews: { title: string; content: string; rating: number; author: string }[],
+  reviews: { title: string; content: string; rating: number; author: string; resolutionAccepted?: boolean }[],
   mode: 'badge' | 'highlights' | 'recent', dark: boolean,
 ): string {
   const url = escapeHtml(publicBaseUrl() + '/business/' + business.domain);
@@ -14,7 +14,8 @@ export function renderWidget(
   const summary = score.count ? String(score.average) + ' / 5' : 'No ratings yet';
   const cards = reviews.map((r) => '<article><div class="stars" aria-label="' + r.rating + ' out of 5">' +
     '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating) + '</div><h3>' + escapeHtml(r.title) +
-    '</h3><p>' + escapeHtml(r.content.slice(0, 600)) + '</p><small>' + escapeHtml(r.author) + '</small></article>').join('');
+    '</h3><p>' + escapeHtml(r.content.slice(0, 600)) + '</p><small>' + escapeHtml(r.author) + '</small>' +
+    (r.resolutionAccepted ? '<p><strong>Resolution confirmed by reviewer</strong></p>' : '') + '</article>').join('');
   return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
     '<title>' + escapeHtml(business.name) + ' reviews</title><style>' +
     ':root{color-scheme:' + (dark ? 'dark' : 'light') + ';font:14px/1.5 system-ui,sans-serif;color:' + (dark ? '#f9edf1' : '#30121d') + ';background:' + (dark ? '#1b0e15' : '#fff') + '}' +

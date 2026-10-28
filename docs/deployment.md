@@ -52,6 +52,11 @@ docker compose --env-file .env \
 The base Compose file alone references upstream images that do not contain this
 fork's directory features. The overlay above builds this repository's code.
 Database migrations run automatically before the API starts.
+Profile/settings screens, review anonymity, resolutions and user administration
+use the same code in development and production. The
+`0010_accounts_and_resolutions` migration adds their schema. Small profile pictures
+are normalized and stored in PostgreSQL, so they are included in database backups
+and need no additional storage service or volume.
 
 ### 3. Register and operate
 

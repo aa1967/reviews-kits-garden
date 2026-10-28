@@ -16,6 +16,11 @@ import { monitorSummary } from './monitoring';
 import { renderWidget, embedLoader } from './widgets';
 import { registerDonationRoutes } from '../donations/router';
 import { businessCategories, registerAdministrationRoutes, requireOpenReviews } from './administration';
+import { profileIdentity, registerAccountRoutes } from './account';
+import { registerResolutionRoutes } from './resolutions';
+import { avatarUrl, publicAuthor, publicAvatar } from './identity';
+import { AVATAR_UPLOAD_LIMIT } from './avatars';
+import { registerUserAdministration } from './users';
 
 export const directoryRouter = new Hono();
 type User = typeof s.users.$inferSelect;
@@ -24,6 +29,7 @@ const idSchema = z.string().uuid();
 const reviewSchema = z.object({
   title: z.string().trim().min(3).max(160), content: z.string().trim().min(20).max(5000),
   rating: z.number().int().min(1).max(5), _honey: z.string().max(200).optional(),
+  anonymous: z.boolean().optional(),
 });
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
 const fail = (status: 400 | 401 | 403 | 404 | 409 | 429 | 503, message: string): never => { throw new HTTPException(status, { message }); };
@@ -34,7 +40,10 @@ async function body<T extends z.ZodType>(c: Context, schema: T): Promise<z.infer
   return result.data!;
 }
 
-directoryRouter.use('*', bodyLimit({ maxSize: 32768 }));
+directoryRouter.use('*', (c, next) => bodyLimit({
+  maxSize: c.req.method === 'POST' && c.req.path.endsWith('/account/avatar') ? AVATAR_UPLOAD_LIMIT : 32768,
+  onError: (context) => context.json({ error: 'Request body is too large. Pictures must be smaller than 2 MB.' }, 413),
+})(c, next));
 directoryRouter.use('*', async (c, next) => {
   if (!['GET', 'HEAD', 'OPTIONS'].includes(c.req.method)) {
     const origin = c.req.header('Origin');
@@ -45,6 +54,7 @@ directoryRouter.use('*', async (c, next) => {
 });
 directoryRouter.onError((error, c) => {
   if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
+  if (error.name === 'BodyLimitError') return c.json({ error: 'Request body is too large.' }, 413);
   let cause: unknown = error;
   for (let depth = 0; depth < 5 && cause && typeof cause === 'object'; depth++) {
     const detail = cause as { code?: string; errno?: string | number; cause?: unknown };
@@ -62,6 +72,7 @@ async function user(c: Context, verified = false): Promise<User> {
   if (!session) fail(401, 'Sign in to continue.');
   const [found] = await db.select().from(s.users).where(eq(s.users.id, session!.user.id));
   if (!found) fail(401, 'Account no longer exists.');
+  if (found!.suspendedAt) fail(403, 'This account is suspended. Contact platform support.');
   if (verified && !found!.emailVerified && !found!.isSystemAdmin) fail(403, 'Verify your email before claiming a business or posting a review.');
   return found!;
 }
@@ -103,6 +114,9 @@ async function rate(actorId: string, scope: string, max: number) {
 }
 registerDonationRoutes(directoryRouter, { user, staff, rate, body });
 registerAdministrationRoutes(directoryRouter, { staff, body, publicBusiness });
+registerAccountRoutes(directoryRouter, { user, staff, rate, body });
+registerResolutionRoutes(directoryRouter, { user, staff, rate, body });
+registerUserAdministration(directoryRouter, { user, staff, rate, body });
 function publicBusiness(site: typeof s.directoryBusinesses.$inferSelect) {
   return { id: site.id, domain: site.domain, name: site.name, description: site.description, category: site.category, claimed: !!site.ownerId, createdAt: site.createdAt, permanentlyClosed: site.permanentlyClosed, reviewsClosed: site.reviewsClosed, updatedAt: site.updatedAt };
 }
@@ -116,9 +130,12 @@ export async function businessScore(businessId: string) {
 async function publicReviews(businessId: string, page = 1) {
   return db.select({
     id: s.directoryReviews.id, title: s.directoryReviews.title, content: s.directoryReviews.content, rating: s.directoryReviews.rating,
-    author: s.users.name, emailVerified: s.users.emailVerified, createdAt: s.directoryReviews.createdAt,
+    author: publicAuthor, avatar: publicAvatar, anonymous: s.directoryReviews.anonymous, emailVerified: s.users.emailVerified, createdAt: s.directoryReviews.createdAt,
     reply: s.directoryReviews.reply, replyAt: s.directoryReviews.replyAt,
+    resolutionAccepted: sql<boolean>`${s.directoryReviews.resolutionStatus} = 'accepted'`,
+    resolutionNote: sql<string | null>`case when ${s.directoryReviews.resolutionStatus} = 'accepted' then ${s.directoryReviews.resolutionNote} else null end`,
   }).from(s.directoryReviews).innerJoin(s.users, eq(s.directoryReviews.reviewerId, s.users.id))
+    .leftJoin(s.userProfiles, eq(s.userProfiles.userId, s.users.id))
     .where(and(eq(s.directoryReviews.businessId, businessId), eq(s.directoryReviews.status, 'published')))
     .orderBy(desc(s.directoryReviews.createdAt)).limit(20).offset((page - 1) * 20);
 }
@@ -151,6 +168,7 @@ directoryRouter.post('/businesses', async (c) => {
   return c.json(publicBusiness(result), site ? 201 : 200);
 });
 directoryRouter.get('/businesses/:domain', async (c) => {
+  c.header('Cache-Control', 'no-store');
   const site = await businessByDomain(c.req.param('domain'));
   const page = Math.min(100, Math.max(1, Number(c.req.query('page')) || 1));
   return c.json({ business: publicBusiness(site), score: await businessScore(site.id), reviews: await publicReviews(site.id, page), monitoring: await monitoring(site.id), page });
@@ -165,9 +183,11 @@ directoryRouter.get('/me', async (c) => {
     id: s.directoryReviews.id, domain: s.directoryBusinesses.domain, title: s.directoryReviews.title, content: s.directoryReviews.content,
     rating: s.directoryReviews.rating, status: s.directoryReviews.status, moderationReason: s.directoryReviews.moderationReason, updatedAt: s.directoryReviews.updatedAt,
     reviewsClosed: s.directoryBusinesses.reviewsClosed, listed: s.directoryBusinesses.listed,
+    anonymous: s.directoryReviews.anonymous, resolutionStatus: s.directoryReviews.resolutionStatus, resolutionNote: s.directoryReviews.resolutionNote,
+    resolutionVersion: s.directoryReviews.resolutionVersion, resolutionRequestedAt: s.directoryReviews.resolutionRequestedAt, resolutionRespondedAt: s.directoryReviews.resolutionRespondedAt,
   }).from(s.directoryReviews).innerJoin(s.directoryBusinesses, eq(s.directoryReviews.businessId, s.directoryBusinesses.id)).where(eq(s.directoryReviews.reviewerId, actor.id)).orderBy(desc(s.directoryReviews.createdAt)).limit(100);
   const alerts = await db.select().from(s.notifications).where(and(eq(s.notifications.userId, actor.id), ilike(s.notifications.type, 'directory.%'))).orderBy(desc(s.notifications.createdAt)).limit(30);
-  return c.json({ user: { id: actor.id, name: actor.name, email: actor.email, emailVerified: actor.emailVerified, isSystemAdmin: actor.isSystemAdmin }, businesses: sites.map((b) => ({ ...publicBusiness(b), isOwner: b.ownerId === actor.id })), claims, reviews, alerts, emailConfigured: mailConfigured() });
+  return c.json({ user: { id: actor.id, name: actor.name, email: actor.email, emailVerified: actor.emailVerified, isSystemAdmin: actor.isSystemAdmin, image: avatarUrl(actor.image) }, identity: await profileIdentity(actor), businesses: sites.map((b) => ({ ...publicBusiness(b), isOwner: b.ownerId === actor.id })), claims, reviews, alerts, emailConfigured: mailConfigured() });
 });
 directoryRouter.post('/verification-email', async (c) => {
   const actor = await user(c); await rate(actor.id, 'verification', 5);
@@ -206,7 +226,11 @@ directoryRouter.get('/managed/:id', async (c) => {
   const actor = await user(c); const site = await access(actor, c.req.param('id'));
   const members = await db.select({ id: s.users.id, name: s.users.name, email: s.users.email }).from(s.directoryMembers).innerJoin(s.users, eq(s.directoryMembers.userId, s.users.id)).where(eq(s.directoryMembers.businessId, site.id));
   const [monitor] = await db.select().from(s.directoryMonitors).where(eq(s.directoryMonitors.businessId, site.id));
-  return c.json({ business: { ...publicBusiness(site), isOwner: actor.isSystemAdmin || site.ownerId === actor.id }, members, monitor: monitor ?? null, monitoring: await monitoring(site.id), score: await businessScore(site.id), reviews: await publicReviews(site.id) });
+  const publicRows = await publicReviews(site.id);
+  const ownResolutions = publicRows.length ? await db.select({ id: s.directoryReviews.id, resolutionStatus: s.directoryReviews.resolutionStatus, resolutionVersion: s.directoryReviews.resolutionVersion,
+    resolutionNote: s.directoryReviews.resolutionNote, resolutionRespondedAt: s.directoryReviews.resolutionRespondedAt }).from(s.directoryReviews).where(inArray(s.directoryReviews.id, publicRows.map((row) => row.id))) : [];
+  return c.json({ business: { ...publicBusiness(site), isOwner: actor.isSystemAdmin || site.ownerId === actor.id }, canRequestResolution: site.ownerId === actor.id || members.some((member) => member.id === actor.id), members, monitor: monitor ?? null, monitoring: await monitoring(site.id), score: await businessScore(site.id),
+    reviews: publicRows.map((row) => ({ ...row, ...ownResolutions.find((resolution) => resolution.id === row.id) })) });
 });
 directoryRouter.patch('/managed/:id', async (c) => {
   const actor = await user(c, true); const site = await access(actor, c.req.param('id'));
@@ -292,7 +316,8 @@ directoryRouter.post('/businesses/:id/reviews', async (c) => {
     const [current] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, site.id)).for('share');
     if (!current) fail(404, 'Business not found.');
     requireOpenReviews(current!);
-    const [saved] = await tx.insert(s.directoryReviews).values({ businessId: site.id, reviewerId: actor.id, title: input.title, content: input.content, rating: input.rating, ...signals }).returning();
+    const identity = await profileIdentity(actor);
+    const [saved] = await tx.insert(s.directoryReviews).values({ businessId: site.id, reviewerId: actor.id, title: input.title, content: input.content, rating: input.rating, anonymous: input.anonymous ?? identity.defaultAnonymousReviews, ...signals }).returning();
     return saved!;
   });
   return c.json({ id: review!.id, status: review!.status }, 201);
@@ -309,7 +334,7 @@ directoryRouter.patch('/reviews/:id', async (c) => {
     const [site] = await tx.select().from(s.directoryBusinesses).where(eq(s.directoryBusinesses.id, review!.businessId)).for('share');
     if (!site) fail(404, 'Business not found.');
     requireOpenReviews(site!);
-    await tx.update(s.directoryReviews).set({ title: input.title, content: input.content, rating: input.rating, ...signals, moderationReason: null, updatedAt: new Date() }).where(eq(s.directoryReviews.id, reviewId));
+    await tx.update(s.directoryReviews).set({ title: input.title, content: input.content, rating: input.rating, ...(input.anonymous === undefined ? {} : { anonymous: input.anonymous }), ...signals, moderationReason: null, updatedAt: new Date() }).where(eq(s.directoryReviews.id, reviewId));
     await tx.insert(s.directoryAudit).values({ actorId: actor.id, action: 'review.edited', targetId: reviewId, note: 'Edited review returned to platform moderation' });
   });
   return c.json({ success: true, status: signals.status });
@@ -430,14 +455,16 @@ directoryRouter.get('/widgets/:domain', async (c) => {
   const mode = c.req.query('mode') === 'highlights' ? 'highlights' : c.req.query('mode') === 'recent' ? 'recent' : 'badge';
   const minRating = Math.min(5, Math.max(1, Number(c.req.query('minRating')) || 4));
   const selected = (c.req.query('ids') ?? '').split(',').filter((v) => idSchema.safeParse(v).success).slice(0, 6);
-  const reviews = mode === 'badge' ? [] : await db.select({ title: s.directoryReviews.title, content: s.directoryReviews.content, rating: s.directoryReviews.rating, author: s.users.name })
+  const reviews = mode === 'badge' ? [] : await db.select({ title: s.directoryReviews.title, content: s.directoryReviews.content, rating: s.directoryReviews.rating, author: publicAuthor,
+    resolutionAccepted: sql<boolean>`${s.directoryReviews.resolutionStatus} = 'accepted'` })
     .from(s.directoryReviews).innerJoin(s.users, eq(s.users.id, s.directoryReviews.reviewerId))
+    .leftJoin(s.userProfiles, eq(s.userProfiles.userId, s.users.id))
     .where(and(eq(s.directoryReviews.businessId, site.id), eq(s.directoryReviews.status, 'published'),
       mode === 'highlights' && !selected.length ? gte(s.directoryReviews.rating, minRating) : undefined,
       mode === 'highlights' && selected.length ? inArray(s.directoryReviews.id, selected) : undefined))
     .orderBy(desc(s.directoryReviews.createdAt)).limit(6);
   c.header('Content-Security-Policy', "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'");
-  c.header('Cache-Control', 'public, max-age=60');
+  c.header('Cache-Control', 'no-store');
   c.header('X-Content-Type-Options', 'nosniff');
   return c.html(renderWidget(publicBusiness(site), await businessScore(site.id), reviews, mode, c.req.query('theme') === 'dark'));
 });

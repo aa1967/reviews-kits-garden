@@ -35,6 +35,7 @@ export class DrizzleUserRepository implements IUserRepository {
     await this.db.update(schema.users)
       .set({
         email: props.email,
+        emailVerified: props.emailVerified,
         name: props.name,
         image: props.avatarUrl,
         notificationPrefs: props.notificationPrefs,

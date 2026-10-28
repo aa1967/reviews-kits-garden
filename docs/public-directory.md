@@ -39,6 +39,7 @@ Production startup no longer silently seeds an account with a default password. 
 | /business/:domain/manage | Business profile, monitoring, replies, team and widgets |
 | /moderation | Staff review queues, evidence, reports/appeals, listings and audit trail |
 | /site-settings | Staff default ruby theme settings and links to donation settings |
+| /settings, /profile | Profile pictures, pseudonyms, privacy, donations, personal themes and security |
 | /principles | Review, verification, privacy and monitoring disclosures |
 | /donate | BTC, LTC and XMR donations, private receipts and optional supporter rankings |
 | /donations/manage | Staff receiving wallets, optional leaderboard setting and payment verification |
@@ -49,6 +50,11 @@ The API prefix is /api/v1/directory. Public endpoints include businesses, busine
 The original forms, testimonial tables, SDK endpoints and workspace are retained. Their owner-curated content is separate from directory_reviews and never contributes to the independent directory's score or widgets.
 
 ## Moderation and evidence
+
+Account settings, per-review anonymity, business replies, reviewer-confirmed
+resolution labels and **Administration → Users** are described in the
+[accounts and resolutions guide](accounts-and-resolutions.md). The same features
+are included in development and production.
 
 See [business administration and site themes](administration.md) for business
 editing, closure, deletion, review closure and the dark/light ruby appearance.
@@ -124,7 +130,8 @@ bun run storage:start to enable them, and cache:stop / storage:stop to pause the
 without deleting data. make stop and bun run db:stop include all profiles and
 retain their volumes. Production directory deployments require PostgreSQL, the
 app, the worker and email delivery; S3 and Redis are not current dependencies.
-If uploads are added later, a backed-up persistent local filesystem is a suitable
+Small profile-picture uploads now use PostgreSQL in both environments. For larger
+uploads added later, a backed-up persistent local filesystem is a suitable
 small-installation option alongside the retained S3-compatible service.
 
 Tests use the tracked server runner in apps/server/scripts/test.ts. From the repository root, run:

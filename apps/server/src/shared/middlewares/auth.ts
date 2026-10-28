@@ -1,19 +1,19 @@
 import type { Context, Next } from "hono";
-import { auth } from "../../infrastructure/auth/auth";
+import { sessionAccount } from './session-account';
 
 /**
  * Middleware to verify if the user is authenticated (has a valid session).
  * Returns 401 Unauthorized if no session is found.
  */
 export const isAuthenticated = async (c: Context, next: Next) => {
-  const session = await auth.api.getSession({ headers: c.req.raw.headers });
+  const account = await sessionAccount(c.req.raw.headers);
   
-  if (!session) {
+  if (!account) {
     return c.json({ error: "Unauthorized: Valid session required" }, 401);
   }
   
   // Store session in context for downstream handlers if needed
-  c.set("session", session);
+  c.set("session", { ...account.session, user: { ...account.session.user, name: account.user.name, emailVerified: account.user.emailVerified, isSystemAdmin: account.user.isSystemAdmin } });
   
   await next();
 };

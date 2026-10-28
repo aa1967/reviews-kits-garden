@@ -76,7 +76,7 @@ describe('Business administration', () => {
     expect(data.business).toMatchObject({ description: 'A corrected public description.', name: 'Renamed business', category: 'Education' });
     expect(data.business.ownerId).toBeUndefined();
     expect((await request('/moderation/businesses/' + site.id, admin, 'PATCH', { name: 'Stale name', reason: 'Outdated administrative change.', updatedAt: site.updatedAt })).status).toBe(409);
-    expect((await db.select().from(s.directoryAudit))[0]!.note).toContain('example.com');
+    expect((await db.select().from(s.directoryAudit).where(eq(s.directoryAudit.action, 'business.updated-by-staff')))[0]!.note).toContain('example.com');
     expect((await change(site.id, { description: 'Invalid', reason: '' })).status).toBe(400);
     expect((await change(site.id, { domain: 'different.example.com' })).status).toBe(400);
     expect((await change(site.id, { category: 'Invalid category' })).status).toBe(400);

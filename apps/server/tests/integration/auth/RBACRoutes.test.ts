@@ -1,54 +1,36 @@
-import { describe, expect, it, afterAll, spyOn } from "bun:test";
-import { Hono } from "hono";
-import { isSystemAdmin } from "../../../src/shared/middlewares/rbac";
-import { auth } from "../../../src/infrastructure/auth/auth";
+import { beforeEach, describe, expect, test } from 'bun:test';
+import { Hono } from 'hono';
+import { eq } from 'drizzle-orm';
+import { isSystemAdmin } from '../../../src/shared/middlewares/rbac';
+import { auth } from '../../../src/infrastructure/auth/auth';
+import { db } from '../../../src/infrastructure/database/db';
+import { users } from '../../../src/infrastructure/database/schema';
+import { clearDatabase } from '../IntegrationSetup';
 
-describe("RBAC Route Protection - Exhaustive Integration", () => {
-  const app = new Hono();
-
-  // Mock routes exactly like in index.ts
-  const adminGroup = new Hono();
-  adminGroup.use("*", isSystemAdmin);
-  adminGroup.get("/users", (c) => c.json({ users: ["user1", "user2"] }));
-  app.route("/api/v1/admin", adminGroup);
-
-  const getSessionSpy = spyOn(auth.api, "getSession") as any;
-
-  afterAll(() => {
-    getSessionSpy.mockRestore();
+const app = new Hono();
+app.use('*', isSystemAdmin);
+app.get('/admin', (c) => c.json({ ok: true }));
+let admin: { id: string; token: string }, member: { id: string; token: string };
+async function actor(email: string) {
+  const result = await auth.api.signUpEmail({ body: { email, name: 'Permission fixture', password: 'Permission-Fixture-123' } });
+  return { id: result.user.id, token: result.token! };
+}
+function request(token?: string) { return app.request('/admin', { headers: token ? { Authorization: 'Bearer ' + token } : {} }); }
+beforeEach(async () => { await clearDatabase(); admin = await actor('admin@example.test'); member = await actor('member@example.test'); });
+describe('Database-backed administrator route protection', () => {
+  test('allows the active administrator', async () => { expect((await request(admin.token)).status).toBe(200); });
+  test('denies an ordinary account and an anonymous visitor', async () => {
+    expect((await request(member.token)).status).toBe(403); expect((await request()).status).toBe(403);
   });
-
-  describe("System Admin access", () => {
-    it("Favorable: System Admin should access admin routes", async () => {
-      getSessionSpy.mockImplementation((async () => ({
-        user: { id: "admin-id", isSystemAdmin: true },
-        session: { id: "s1", userId: "admin-id", expiresAt: new Date(), token: "t1", createdAt: new Date(), updatedAt: new Date() }
-      })) as any);
-
-      const res = await app.request("/api/v1/admin/users");
-      expect(res.status).toBe(200);
-      expect(await res.json()).toEqual({ users: ["user1", "user2"] });
-    });
+  test('demotion takes effect for an existing session', async () => {
+    await db.update(users).set({ isSystemAdmin: false }).where(eq(users.id, admin.id));
+    expect((await request(admin.token)).status).toBe(403);
   });
-
-  describe("Regular Member access", () => {
-    it("Unfavorable: Regular user should NOT access admin routes", async () => {
-      getSessionSpy.mockImplementation((async () => ({
-        user: { id: "user-id", isSystemAdmin: false },
-        session: { id: "s2", userId: "user-id", expiresAt: new Date(), token: "t2", createdAt: new Date(), updatedAt: new Date() }
-      })) as any);
-
-      const res = await app.request("/api/v1/admin/users");
-      expect(res.status).toBe(403);
-    });
+  test('suspension takes effect even before a session is removed', async () => {
+    await db.update(users).set({ suspendedAt: new Date() }).where(eq(users.id, admin.id));
+    expect((await request(admin.token)).status).toBe(403);
   });
-
-  describe("Anonymous access", () => {
-    it("Unfavorable: Visitor without session should be blocked from admin routes", async () => {
-      getSessionSpy.mockImplementation((async () => null) as any);
-
-      const resAdmin = await app.request("/api/v1/admin/users");
-      expect(resAdmin.status).toBe(403);
-    });
+  test('deleted accounts cannot use an existing bearer token', async () => {
+    await db.delete(users).where(eq(users.id, admin.id)); expect((await request(admin.token)).status).toBe(403);
   });
 });

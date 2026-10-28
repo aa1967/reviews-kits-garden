@@ -69,6 +69,13 @@ describe("User Entity", () => {
   });
 
   describe("Updates", () => {
+    it("requires fresh verification when the email changes", () => {
+      const user = new User({ ...validProps, emailVerified: true });
+      user.updateEmail(validProps.email);
+      expect(user.getEmailVerified()).toBe(true);
+      user.updateEmail('changed@example.test');
+      expect(user.getEmailVerified()).toBe(false);
+    });
     it("should update name and refresh updatedAt", () => {
       const user = new User(validProps);
       const initialUpdatedAt = user.getProps().updatedAt!;

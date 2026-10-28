@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import type { BusinessLifecycle } from '@reviewskits/types';
+import type { BusinessLifecycle, ProfileSettings, ReviewResolutionStatus } from '@reviewskits/types';
 
 export type Score = { count: number; average: number | null; distribution: { rating: number; count: number }[] };
 export type Business = BusinessLifecycle & { id: string; domain: string; name: string; description: string; category: string; claimed: boolean; createdAt: string; score?: Score; isOwner?: boolean; listed?: boolean };
-export type Review = { id: string; title: string; content: string; rating: number; author: string; emailVerified: boolean; createdAt: string; reply: string | null; replyAt: string | null };
+export type Review = { id: string; title: string; content: string; rating: number; author: string; avatar: string | null; anonymous: boolean; emailVerified: boolean; createdAt: string; reply: string | null; replyAt: string | null;
+  resolutionAccepted: boolean; resolutionNote: string | null; resolutionStatus?: ReviewResolutionStatus; resolutionVersion?: string; resolutionRespondedAt?: string | null };
 export type Monitoring = {
   enabled: boolean; started: boolean; status: string; lastCheckAt: string | null; responseMs: number | null; tlsExpiresAt: string | null; widgetInstalled: boolean | null;
   since: string; windows: { days: number; uptimePercent: number | null; coveragePercent: number; observedDowntimeMinutes: number; unknownMinutes: number }[];
@@ -11,15 +12,17 @@ export type Monitoring = {
 };
 export type Claim = { id: string; businessId: string; method: 'dns' | 'file'; token: string; status: string; expiresAt: string; lastError: string | null };
 export type Account = {
-  user: { id: string; name: string; email: string; emailVerified: boolean; isSystemAdmin: boolean };
+  user: { id: string; name: string; email: string; emailVerified: boolean; isSystemAdmin: boolean; image: string | null };
+  identity: ProfileSettings['identity'];
   businesses: Business[]; claims: { claim: Claim; domain: string }[];
-  reviews: { id: string; domain: string; title: string; content: string; rating: number; status: string; moderationReason: string | null; updatedAt: string; reviewsClosed: boolean; listed: boolean }[];
+  reviews: { id: string; domain: string; title: string; content: string; rating: number; status: string; moderationReason: string | null; updatedAt: string; reviewsClosed: boolean; listed: boolean; anonymous: boolean;
+    resolutionStatus: ReviewResolutionStatus; resolutionNote: string | null; resolutionVersion: string; resolutionRequestedAt: string | null; resolutionRespondedAt: string | null }[];
   alerts: { id: string; title: string; body: string | null; createdAt: string }[]; emailConfigured: boolean;
 };
-export type Managed = { business: Business; score: Score; reviews: Review[]; monitoring: Monitoring | null; monitor: { url: string; expectedText: string; enabled: boolean } | null; members: { id: string; name: string; email: string }[] };
+export type Managed = { business: Business; score: Score; reviews: Review[]; canRequestResolution: boolean; monitoring: Monitoring | null; monitor: { url: string; expectedText: string; enabled: boolean } | null; members: { id: string; name: string; email: string }[] };
 export type Moderation = {
   reviews: {
-    review: { id: string; title: string; content: string; rating: number; status: string; riskScore: number; riskReasons: string[]; updatedAt: string; moderationReason: string | null };
+    review: { id: string; title: string; content: string; rating: number; status: string; riskScore: number; riskReasons: string[]; updatedAt: string; moderationReason: string | null; anonymous: boolean; resolutionStatus: ReviewResolutionStatus; resolutionVersion: string };
     business: { domain: string; name: string };
     reviewer: { id: string; name: string; email: string; emailVerified: boolean; createdAt: string };
   }[];

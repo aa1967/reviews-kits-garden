@@ -1,91 +1,41 @@
-import { expect, test, describe, spyOn, afterEach, afterAll } from "bun:test";
-import { Hono } from "hono";
-import { isSystemAdmin } from "../../../src/shared/middlewares/rbac";
-import { auth } from "../../../src/infrastructure/auth/auth";
+import { afterAll, afterEach, describe, expect, spyOn, test } from 'bun:test';
+import { Hono } from 'hono';
+import { isSystemAdmin } from '../../../src/shared/middlewares/rbac';
+import * as lookup from '../../../src/shared/middlewares/session-account';
 
-type ErrorResponse = { error: string };
-
-// ─── Helper: mock session factory ───────────────────────────────────────────
-function mockSession(overrides: {
-  userId?: string;
-  isSystemAdmin?: boolean | number | string;
-} = {}) {
-  return {
-    user: { id: overrides.userId ?? "user-1", isSystemAdmin: overrides.isSystemAdmin ?? false },
-    session: {
-      id: "s1",
-      userId: overrides.userId ?? "user-1",
-      expiresAt: new Date(),
-      token: "t1",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  };
+const app = new Hono();
+app.use('*', isSystemAdmin);
+app.get('/admin', (c) => c.json({ ok: true }));
+const getAccount = spyOn(lookup, 'sessionAccount');
+afterEach(() => getAccount.mockReset());
+afterAll(() => getAccount.mockRestore());
+function account(databaseRole: boolean, cachedRole: boolean) {
+  const now = new Date();
+  const user = { id: '11111111-1111-4111-8111-111111111111', name: 'Fixture', email: 'fixture@example.test', emailVerified: true, image: null,
+    isSystemAdmin: databaseRole, suspendedAt: null, suspensionReason: null, lastSignInAt: null, notificationPrefs: null, createdAt: now, updatedAt: now };
+  return { user, session: { user: { ...user, isSystemAdmin: cachedRole }, session: {
+    id: 'session-fixture', userId: user.id, token: 'fixture', expiresAt: new Date(Date.now() + 10000), createdAt: now, updatedAt: now,
+  } } };
 }
-
-// ─── Shared Hono apps for middleware tests ──────────────────────────────────
-const adminApp = new Hono();
-adminApp.use("*", isSystemAdmin);
-adminApp.get("/admin", (c) => c.json({ ok: true }));
-
-// ─── Global spy ─────────────────────────────────────────────────────────────
-const getSessionSpy = spyOn(auth.api, "getSession") as any;
-
-afterEach(() => {
-  getSessionSpy.mockReset();
-});
-
-afterAll(() => {
-  getSessionSpy.mockRestore();
-});
-
-// ═════════════════════════════════════════════════════════════════════════════
-// 3. isSystemAdmin middleware
-// ═════════════════════════════════════════════════════════════════════════════
-describe("isSystemAdmin middleware", () => {
-  test("Unauthenticated user → 403", async () => {
-    getSessionSpy.mockImplementation((async () => null) as any);
-
-    const res = await adminApp.request("/admin");
-    expect(res.status).toBe(403);
-    expect((await res.json() as ErrorResponse).error).toContain("No session");
+describe('Current administrator permissions', () => {
+  test('denies missing, removed or suspended accounts', async () => {
+    getAccount.mockResolvedValue(null);
+    expect((await app.request('/admin')).status).toBe(403);
   });
-
-  test("User with isSystemAdmin = false → 403", async () => {
-    getSessionSpy.mockImplementation(
-      (async () => mockSession({ isSystemAdmin: false })) as any
-    );
-
-    const res = await adminApp.request("/admin");
-    expect(res.status).toBe(403);
-    expect((await res.json() as ErrorResponse).error).toContain("System Admin only");
+  test('denies an ordinary account', async () => {
+    getAccount.mockResolvedValue(account(false, false));
+    expect((await app.request('/admin')).status).toBe(403);
   });
-
-  test("User with isSystemAdmin = true → passes to next()", async () => {
-    getSessionSpy.mockImplementation(
-      (async () => mockSession({ isSystemAdmin: true })) as any
-    );
-
-    const res = await adminApp.request("/admin");
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
+  test('allows a current administrator', async () => {
+    getAccount.mockResolvedValue(account(true, true));
+    expect((await app.request('/admin')).status).toBe(200);
   });
-
-  test("isSystemAdmin = 1 (integer coercion) → passes", async () => {
-    getSessionSpy.mockImplementation(
-      (async () => mockSession({ isSystemAdmin: 1 })) as any
-    );
-
-    const res = await adminApp.request("/admin");
-    expect(res.status).toBe(200);
+  test('demotion takes effect despite a cached administrator flag', async () => {
+    getAccount.mockResolvedValue(account(false, true));
+    expect((await app.request('/admin')).status).toBe(403);
   });
-
-  test('isSystemAdmin = "true" (string coercion) → passes', async () => {
-    getSessionSpy.mockImplementation(
-      (async () => mockSession({ isSystemAdmin: "true" })) as any
-    );
-
-    const res = await adminApp.request("/admin");
-    expect(res.status).toBe(200);
+  test('promotion uses the current database role', async () => {
+    getAccount.mockResolvedValue(account(true, false));
+    expect((await app.request('/admin')).status).toBe(200);
   });
 });

@@ -12,6 +12,9 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
   isSystemAdmin: boolean('is_system_admin').notNull().default(false),
+  suspendedAt: timestamp('suspended_at'),
+  suspensionReason: text('suspension_reason'),
+  lastSignInAt: timestamp('last_sign_in_at'),
   notificationPrefs: jsonb('notification_prefs').default({ newReview: true, weeklyReport: true }),
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
@@ -27,6 +30,24 @@ export const sessions = pgTable('sessions', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow(),
 });
+
+export const userProfiles = pgTable('user_profiles', {
+  userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  nameMode: text('name_mode', { enum: ['account', 'pseudonym'] }).notNull().default('account'),
+  pseudonym: text('pseudonym'),
+  defaultAnonymousReviews: boolean('default_anonymous_reviews').notNull().default(false),
+}, (t) => ({
+  mode: check('user_profiles_mode', sql`${t.nameMode} IN ('account', 'pseudonym')`),
+  named: check('user_profiles_pseudonym_required', sql`${t.nameMode} <> 'pseudonym' OR ${t.pseudonym} IS NOT NULL`),
+  pseudonymShape: check('user_profiles_pseudonym_shape', sql`${t.pseudonym} IS NULL OR (length(${t.pseudonym}) BETWEEN 3 AND 40 AND ${t.pseudonym} ~ '^[A-Za-z0-9][A-Za-z0-9 ._-]*[A-Za-z0-9]$')`),
+  uniqueName: uniqueIndex('user_profiles_pseudonym_unique').on(sql`lower(${t.pseudonym})`).where(sql`${t.pseudonym} IS NOT NULL`),
+}));
+
+export const profileAvatars = pgTable('profile_avatars', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
+  png: text('png').notNull(),
+}, (t) => ({ size: check('profile_avatars_size', sql`length(${t.png}) <= 100000`) }));
 
 export const accounts = pgTable('accounts', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -274,6 +295,13 @@ export const directoryReviews = pgTable('directory_reviews', {
   title: text('title').notNull(),
   content: text('content').notNull(),
   rating: integer('rating').notNull(),
+  anonymous: boolean('anonymous').notNull().default(false),
+  resolutionStatus: text('resolution_status', { enum: ['none', 'requested', 'accepted', 'declined'] }).notNull().default('none'),
+  resolutionNote: text('resolution_note'),
+  resolutionVersion: uuid('resolution_version').notNull().defaultRandom(),
+  resolutionRequestedBy: uuid('resolution_requested_by').references(() => users.id, { onDelete: 'set null' }),
+  resolutionRequestedAt: timestamp('resolution_requested_at'),
+  resolutionRespondedAt: timestamp('resolution_responded_at'),
   status: text('status', { enum: ['pending', 'published', 'quarantined', 'rejected'] }).notNull().default('pending'),
   riskScore: integer('risk_score').notNull().default(0),
   riskReasons: jsonb('risk_reasons').$type<string[]>().notNull().default([]),
@@ -292,6 +320,8 @@ export const directoryReviews = pgTable('directory_reviews', {
   fingerprint: index('directory_reviews_fingerprint').on(t.fingerprint),
   ratingValid: check('directory_review_rating_valid', sql.raw('"rating" BETWEEN 1 AND 5')),
   statusValid: check('directory_review_status_valid', sql.raw("status IN ('pending', 'published', 'quarantined', 'rejected')")),
+  resolutionValid: check('directory_review_resolution_valid', sql`${t.resolutionStatus} IN ('none', 'requested', 'accepted', 'declined')`),
+  resolutionComplete: check('directory_review_resolution_complete', sql`${t.resolutionStatus} NOT IN ('requested', 'accepted') OR (${t.resolutionNote} IS NOT NULL AND ${t.resolutionRequestedAt} IS NOT NULL)`),
 }));
 
 export const directoryReports = pgTable('directory_reports', {
